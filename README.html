@@ -1,0 +1,219 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+       "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<title>NewsFeed 2.14 Documentation</title>
+<link rel="stylesheet" type="text/css" href="http://home.arcor.de/mdoege/newsfeed/style.css">
+<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+
+<h2>NewsFeed 2.14 Documentation</h2>
+
+<h3>Installation</h3>
+<p>If you just want to try NewsFeed out, no installation is necessary at all. Simply untar the file, <tt>cd</tt> to the directory and run <tt>./newsfeed</tt>. As Python can find packages in the current working directory as well as the global locations, everything should work as expected.</p>
+<p>If you want to install the program globally or under your home directory, please choose one of the following two methods:</p>
+<p><b>Method A</b> (automatic install): Use the distutils approach. Untar the file and then do <tt>python setup.py install</tt>. See the <a href="http://www.python.org/doc/current/inst/">distutils documentation</a> for installation options like directory paths.</p>
+<p><b>Method B</b> (manual install):</p>
+<ol>
+<li>Copy <tt>newsfeed.py</tt>, <tt>rssfinder.py</tt>, <tt>rssparser.py</tt>, and <tt>dlthreads.py</tt> into the Python module path, e.g. to <tt>/usr/local/lib/python2.7/site-packages/</tt> or to where your PYTHONPATH environment variable points.</li>
+
+<li>If you have GNOME installed, NewsFeed uses one of the sound files that come with GNOME to alert to new items. The file is also included ("email.wav"). If you prefer another sound, set the environment variable NEWSFEED_SOUND or supply the full path in line 36 of <tt>newsfeed.py</tt>. Putting a nonexistent filename there disables sound notification.<br />
+
+     NOTE: You need to have <a href="http://www.speech.kth.se/snack/">Snack</a> installed to play sounds.</li>
+
+<li>Copy at least <tt>newsfeed</tt> and, if you need them, also <tt>add_feed.py</tt>, <tt>feed2opml.py</tt>, <tt>opml2feed.py</tt>, <tt>update_feeds.py</tt>, and <tt>dinos.py</tt> to somewhere in your $PATH.</li>
+</ol>
+<p>If you want <a href="#asub">auto-subscription</a> to work you have to consult your web browser documentation on how to add a handler for specific MIME types or keywords, see below.</p>
+<hr />
+
+<p>NewsFeed uses the Universal Feed Parser by <a href="http://diveintomark.org/">Mark Pilgrim</a> for the fetching, parsing, and autodiscovery of feeds. Slightly outdated versions of these modules are included in the distribution for ease of use, but newer versions should work as well.</p>
+
+<h3>The GUI</h3>
+
+<p>The NewsFeed main window features a familiar three-pane layout similar to many email programs, where in the left vertical pane the newsfeeds and active searches are listed, with buttons right below to move the active feed up and down in the list. Behind the entries the number of unread items in the feed is shown in parentheses. Empty feeds or feeds that did not update correctly the last time (e.g., because of a server timeout) are put in square brackets. Right below the buttons is the progress bar, which is white normally, but shows a green bar when an update is in progress.</p>
+
+<p>Right next to the feed list is the items list for the selected feed, with newest items at the top.  Items that were already displayed are shown slightly indented and in parentheses, whereas new, unread items are shown without indentation. If available, the column right next to the one with the subject lines shows the time stamps for the individual messages, or if not available, for the feed.</p>
+
+<p>Below the topic list is the main text area where the description of the selected item is displayed. In the top right corner is again the date as supplied by the feed if available, while in the lower right corner the download date is shown in local time. The article headline is clickable and will open the browser that is set in the BROWSER shell environment variable. (<a href="http://www.dillo.org/">Dillo</a> is a good choice for a browser in this context, as it starts up very fast and displays most pages quite nicely.) Alternatively, pressing <b>Return</b> opens the current item. The headline will turn violet if has been visited in the browser. Finaly, the URI of the item is printed in a red font below the text.</p>
+
+<h4>Top row buttons</h4>
+
+<ul>
+<li>'Refresh Now' (Key <b>R</b>): Update all feeds. During updating the user interface can become sluggish for a few seconds, so it is probably better to wait for the update to complete. (Please not that as of v1.6 pressing <b>r</b> now only updates the current channel.)</li>
+
+<li>'Edit Channel' (Key <b>e</b>): Edit the current channel's properties&mdash;'Name' is what is shown in the channel list, if unsure, prepend a '?' to the name, causing NewsFeed to look for the channel name in the newsfeed header. 'RSS' is the URI of the feed, if unknown, enter the URI of the site into 'Home' and 'Press 'Auto-Detect RSS Feed'. With luck, one or more channels will be found for the site and merged into the channel list. 'Update every' marks the update interval for that particular channel, while 'Expire after' is the time for which the feed items are stored.  Pressing 'Save Information' saves, while closing the window cancels. Below the buttons the official channel description by the newsfeed provider is shown.</li>
+
+<li>'Subscribe': Creates a new channel and opens its edit box. See <a href="#autodis">auto-discovery.</a></li>
+
+<li>'Unsubscribe': Delete current channel (or search) from the list.</li>
+
+<li>'Search News' (Key <b>s</b>): Allows to search headlines and content for words or phrases. Select 'Match Case' if capitalization is significant, select 'Match Whole Words' if your search terms should not be part of longer words.  Pressing <b>Return</b> or clicking 'Accept' adds the search to the feed list. It gets updated automatically whenever one of the channels changes ("Live Search").</li>
+
+<li>'Next Unread' (<b>Space</b>): Jump to the next unread item, either in this or in other feeds. By repeatedly clicking this button, you can cycle through all new items until none are left.</li>
+
+<li>'Mark All As Read' (Key <b>m</b>): Mark the entire channel contents as read. There is also the catch up command (<b>C</b>, i.e. <b>Shift</b>-<b>c</b>) which marks all items in all channels as read.</li>
+
+<li>'Delete' (Key <b>d</b> or <b>Backspace</b>): Deletes the current item from the feed and remembers <i>not</i> to download it again (at least until the expiration time set for the channel). This is useful to get rid of annoying items such as "Customize this feed", ads, etc.</li>
+
+<li>'Delete All': Resets the current channel. If you refresh immediately, all items currently available will be downloaded again. The delete commands can also be used in a search, where they will affect the feeds in which the items were found.</li>
+</ul>
+
+<h4>Other functionality</h4>
+
+<p>Note that window positions and sizes are saved when you move or resize the windows. For the helper windows, this does not work if you close them with their close buttons, you have to do 'Accept' or 'Save', respectively.</p>
+
+<p>In the content pane, directly above the item title there is a toolbar (as of v1.7) that contains buttons labeled "back" (Key <b>&lt;</b> or Key <b>[</b>) and "forward" (Key <b>&gt;</b> or Key <b>]</b>) for navigating between read items in the standard web browser fashion.</p>
+
+<p>Pressing <b>q</b> quits the application. <b>Escape</b> can also be used to dismiss the info and search windows.</p>
+
+<p>Additionally, the <b>up</b> and <b>down</b> cursor keys go the previous/next item in the feed, while the <b>left</b> and <b>right</b> cursor keys jump to the previous/next feed. Finally, pressing <b>v</b> jumps to the history ("Recently Visited") feed.</p>
+
+<p>The "Important Items" feed contains items that were marked as important, either by using the "Mark" button in the item pane toolbar or by using the keyboard shortcut <b>n</b>. Items in this feed never expire and subject lines of flagged items are prepended with "!!!". You can use the keyboard shortcut <b>N</b> (i.e. <b>Shift</b>-<b>n</b>) to jump to this feed.</p>
+
+<p>The font size in the item description pane can be adjusted with the "Smaller" and "Larger" buttons from the item toolbar, or using the keyboard shortcuts <b>+</b> and <b>-</b>.</p>
+
+<p>The keyboard shortcut <b>i</b> iconifies the application (or puts it in the dock on Mac OS X), <b>w</b> toggles widescreen mode, and <b>h</b> opens the homepage of the feed (as given by the URL under "Home:" in the Channel Info window).</p>
+
+<h5>Item export</h5>
+
+<p>"Export" writes the currently selected item to a file and calls an application with the filename as an argument. Lines 55 to 62 in <tt>newsfeed.py</tt> show how to set this up using template substitution. You can use this feature e.g. to
+<ul>
+<li>create a new email with the item as the text body and its title as the subject</li>
+<li>print the item, for example using a2ps</li>
+<li>export the item to a weblog editor</li>
+<li>...or whatever else you can think of</li>
+</ul>
+
+<h5>Custom refresh intervals</h5>
+
+<p>Custom refresh intervals are implemented as a an item in the refresh interval popup menu in the subscription info box, "Custom". The number of minutes this interval corresponds to is set on line 72 of <tt>newsfeed.py</tt> in the variable <tt>custom_interval</tt>. By default this is set to .333, i.e. about 20 seconds.</p>
+
+<h5><a name="autodis">Auto-discovery of feed URLs</a></h5>
+
+<p>If you want to try the auto-discovery of feeds, enter an URL under "Home:" in the Channel Info window and click "Auto-Detect RSS Feed" (or just hit Return if your are confident :-). After a few seconds, one or more auto-detected feeds will appear in the feed list if the operation is successful. The temporary feed names are prepended with question marks, which tells NewsFeed to look for a feed name in the feed itself and use that.</p>
+
+<p>Please also note that the Tkinter bindings to the Tk widget set tend to leak memory, depending on the version of the bindings used. In other words, the amount of memory occupied by NewsFeed may grow over time, even if it is mostly idling. Therefore it may not be a good idea to leave NewsFeed running for a prolonged period of time (days, weeks, or so) in a memory-starved or multi-user environment.</p>
+
+<h3>Console mode</h3>
+
+<p>There is a basic console interface (e.g. for running via SSH) which can be activated with a command line option: <tt>newsfeed --nogui</tt>. Select a feed from the list by its number, then optionally select an item to open it in the browser. Use "0" to go back or exit.</p>
+
+<h3>Helper scripts</h3>
+
+<ul>
+<li><tt>add_feed.py</tt>:  Its command line argument has to be an RSS URL, which is added to the list of feeds in Newsfeed either by signalling a running NewsFeed instance or the next time the user starts NewsFeed.
+<br />
+    So typing, e.g.<br />
+
+	<center><tt>add_feed.py  http://hypertext.rmit.edu.au/~burgess/index.xml</tt></center><br />
+
+    at the command line will add that feed and load it in NewsFeed if it is running.</li>
+
+<li><tt>bsize.py</tt>: Show how many bytes each feed uses in memory. (Only the content of the feed is counted, not the additional overhead in Python for managing objects.) If a feed uses a lot of memory and the program becomes slow, consider lowering the caching time for that feed.</li>
+
+<li><tt>dinos.py</tt>: Locates "dinosaurs" in your subscription list, i.e. feeds for which no new items have been downloaded in a long time. The feed might be dead&mdash;then again, it might just have changed its URL. Remember, NewsFeed does not change feed URLs on its own behind your back in response to HTTP status codes, so you have to do it yourself if there is an address change.<br /> This script outputs a sorted list of feed names and their age in days, as measured by the download time of the most recent  item for all feeds for which this age exceeds ten days. Obviously, you will find the most likely candidates for "dinosaur" feeds at the top of the list. You can optionally specify a minimum age on the command line, e.g. <tt>dinos.py 15</tt> for feeds that have received no updates for at least 15 days.</li>
+
+<li><tt>dumpfeed.py</tt>: Dumps a feed's contents to the console, in the format <tt><i>TITLE</i> :: <i>DESCRIPTION</i></tt> with one item per line (but of course line breaks in descriptions are also printed). For example, <tt>dumpfeed.py Slashdot</tt> print the contents of the feed called 'Slashdot' to standard output. The match is not case-sensitive.</li>
+
+<li><tt>export_flagged.py</tt> and <tt>export_unread.py</tt>: Export flagged or unread items, respectively, in HTML format to standard output. The result might even validate as XHTML if the HTML markup in the indivual news items is conformant. One usage scenario for <tt>export_unread</tt> is to export the unread items to read them in a web browser and then later to start up NewsFeed and use <b>Shift-C</b> to mark those stories as read.</li>
+
+<li><tt>feed2opml.py</tt>: Exports you feed list to OPML format, prints to standard output.</li>
+
+<li><tt>opml2feed.py</tt>: Reads a file with feed descriptions in OPML format and adds them to the NewsFeed subscriptions list if they are not already in the database (identified by their feed URI), so e.g. you would type<br /><br />
+
+         <center><tt>opml2feed new_feeds.opml</tt></center>
+
+<br />to process the entries in <tt>new_feeds.opml</tt> and append them to the list. Note that NewsFeed should not be running while you do this, as otherwise it will overwrite the changes. Also note that this script will have to remove any active searches from your NewsFeed subscriptions list, as some versions of Python may show unexpected behavior if the searches are kept. Of course you can add them again after the import is complete.</li>
+
+<li><tt>update_feeds.py</tt>: Updates the NewsFeed cache from the command line. The idea is that you invoke this script from a cron job that runs, say, every hour. That way, feeds will be updated even when NewsFeed itself is not running, so you don't miss any articles in between. Note that this script only runs if no instance of NewsFeed is active to avoid conflicts over the database. Also note that all feeds are updated regardless of their time of last update. When an optional command line parameter is provided, <tt>-v</tt>, this script reports if an instance of NewsFeed is already running.</li>
+
+</ul>
+
+<h3>Environment variables</h3>
+
+<ul>
+<li><tt>NEWSFEED_SOUND</tt> &mdash; path to sound file to play when new items have arrived</li>
+<li><tt>BROWSER_NEW</tt> &mdash; open stories in new window (as opposed to existing window)? Can be either "yes" or "no".</li>
+<li><tt>MEDIA_PLAYER</tt> &mdash; program for handling enclosures</li>
+</ul>
+
+<p>If these environment variables are not set, builtin defaults will be used.</p>
+
+<h3>Upgrading and troubleshooting</h3>
+
+<p>Before you upgrade, copy your latest <tt>~/.newsfeed</tt> to a safe place, so you can restore it should there be a problem.</p>
+
+<p>If your <tt>~/.newsfeed</tt> configuration file is from an older version of NewsFeed, the latest version might not import it, because <tt>rssparser.py</tt> was renamed to <tt>feedparser.py</tt> at some point. Therefore, if NewsFeed overwrites the old <tt>.newsfeed</tt> file with its default configuration, try to quit, copy the old <tt>.newsfeed</tt> in its place again, copy <tt>feedparser.py</tt> to <tt>rssparser.py</tt>, and relaunch.</p>
+
+<h3>Configuration file and item store</h3>
+
+<p>By default, the configuation as well as the cached data is stored in <tt>~/.newsfeed</tt>, while in <tt>~/.newsfeed.pid</tt> the PID of the currently running NewsFeed instance is stored. Finally, <tt>~/.newsfeed.addfeed</tt> contains new URIs from the helper script and should be processed (and then deleted) by the main program.</p>
+
+<p>As the entire program state is stored in the platform-independent <tt>~/.newsfeed</tt> file, one can sync NewsFeed to a different machine or restore a previous state by copying / moving /renaming <tt>~/.newsfeed</tt>.
+
+<h4><a name="recov">Automatic versioning of the configuration/cache file</a></h4>
+
+<p>Earlier versions of NewsFeed (up to 1.5.2) used only one copy of the configuration/cache file. In the unlikely event that the computer crashed while NewsFeed was in the midst of saving its state, the file could become corrupted.</p>
+
+<p>As of NewsFeed 1.6, the configuration file is versioned, that is, older versions with the extensions <tt>.1</tt>, <tt>.2</tt>, <tt>.3</tt>, etc. are kept in case something goes wrong with the main file.</p>
+
+<p>This versioning mechanism is fully automatic and also features automatic recovery, meaning that if the main configuration file is unreadable for some reason, NewsFeed looks for older revisions of the file and uses the most recent version.</p>
+
+<p>If required, the number of old revisions to keep (which defaults to three) can be set on line 75 in <tt>newsfeed.py</tt>. Also note that, as opposed to the numbering scheme in <a href="http://www.openvms.org/">VMS</a>, lower extensions denote more recent versions.</p>
+
+<h4><a name="exc">Extra configuration file</a></h4>
+
+<p>As of v2.6, NewsFeed also looks for the file <tt>newsfeed_defaults.py</tt>&mdash;first in the current working directory, then in the directory where <tt>newsfeed.py</tt> resides, then in the usual module search path&mdash;and tries to import it. This file may contain definitions of global variables which override the assignments at the top of <tt>newsfeed.py</tt>.</p>
+
+<p>So for instance, you could have a <tt>newsfeed_defaults.py</tt> that contains:</p>
+
+<pre>
+digger = False
+
+custom_interval = 1
+
+browser_cmd = "konqueror %s &"
+
+config_file = "/Users/martin/Public/testfile"
+
+fontscaling = 1.2
+
+ask_before_deletion = False
+</pre>
+
+<p>It would cause NewsFeed to</p>
+<ol>
+<li>turn off TalkDigger integration,
+<li>set the custom refresh interval to one second,
+<li>use a different command for opening the web browser (ignoring the BROWSER environment variable),
+<li>use a different location for the cache and configuration files,
+<li>use bigger fonts at startup,
+<li>and to disable the warning when deleting a feed.
+</ol>
+
+<p>This feature is mainly meant to facilitate keeping NewsFeed together with Python/Tk and a lightweight web browser on a removable medium such as a USB flash drive. In this case, <tt>newsfeed_defaults.py</tt> should be in the same directory as the other Python scripts and minimally contain new definitions for browser_cmd (to point to the browser on the USB drive) and config_file (for NewsFeed to store its setting and cache on the drive as well).</p>
+
+<h3><a name="asub">Auto-subscription</a></h3>
+
+<p>In principle, getting auto-subscription, i.e. the appearance of new feeds in NewsFeed when you click on them in the browser, to work would consist in defining add_feed.py as a handler for files with ".rss" extensions. Now, apart from the fact that some feeds have an ".xml" entension, browsers decide on which program to use by MIME type.</p>
+
+<p>Ideally, HTTP servers would be configured to send the MIME type "application/xml+rss" for files with "rss" extensions. Unfortunately, most are not, sending "text/xml" or even "text/plain" instead. This complicates auto-subscription unnecessarily, because Mozilla likes to handle the latter types internally.</p>
+
+<p><a href="http://www.peerfear.org/rss/permalink/2003/07/17/AggregatorSubscriptionMechanisms/">Alternative solutions</a> have been discussed at length, for instance prepending a "feed:" to the URI or replacing the "http://" with a "feed://". The <tt>add_feed.py</tt> script supports all these mechanisms, but since there exists no standard way of auto-subscription right now, expect problems, at least with some servers.</p>
+
+<h3>Performance issues</h3>
+
+<p>Given that Python is a byte-compiled language and that functional constructs are used heavily by the program, NewsFeed may become sluggish if the individual feeds have a lot of items. In that event, reducing the time for which items are cached may be a good idea for feeds with many new items per day (see <tt>bsize.py</tt>).</p>
+
+<p>NewsFeed is not multithreaded, so it is perhaps advisable to simply leave it alone while it is updating (as indicated by the white/green status bar in the lower left corner), at least on high-latency internet connections.</p>
+
+<p>Generally, having searches in the feed list slows the program down. Thus, for maximum performace, delete searches when you do not need them anymore.</p>
+
+<p>Finally, make sure you are running the latest version of Python itself. Python v2.5 for example performs much better than v2.4 or v2.3.</p>
+
+<hr>
+
+</body>
+</html>
