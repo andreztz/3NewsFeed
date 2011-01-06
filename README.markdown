@@ -82,15 +82,14 @@ interface can become sluggish for a few seconds, so it is probably better to
 wait for the update to complete. (Please not that as of v1.6 pressing **r**
 now only updates the current channel.)
 
-  * 'Edit Channel' (Key **e**): Edit the current channel's
-  * properties&mdash;'Name'
-is what is shown in the channel list, if unsure, prepend a '?' to the name,
-causing NewsFeed to look for the channel name in the newsfeed header. 'RSS' is
-the URI of the feed, if unknown, enter the URI of the site into 'Home' and
-'Press 'Auto\-Detect RSS Feed'. With luck, one or more channels will be found
-for the site and merged into the channel list. 'Update every' marks the update
-interval for that particular channel, while 'Expire after' is the time for
-which the feed items are stored. Pressing 'Save Information' saves, while
+  * 'Edit Channel' (Key **e**): Edit the current channel's properties.
+'Name' is what is shown in the channel list, if unsure, prepend a '?' to the
+name, causing NewsFeed to look for the channel name in the newsfeed header.
+'RSS' is the URI of the feed, if unknown, enter the URI of the site into 'Home'
+and 'Press 'Auto\-Detect RSS Feed'. With luck, one or more channels will be
+found for the site and merged into the channel list. 'Update every' marks the
+update interval for that particular channel, while 'Expire after' is the time
+for which the feed items are stored. Pressing 'Save Information' saves, while
 closing the window cancels. Below the buttons the official channel description
 by the newsfeed provider is shown.
 
