@@ -6,14 +6,14 @@ NewsFeed
 
 A Python/Tk RSS/RDF/Atom news aggregator. See included README.html for documentation.
 
-Martin Doege, 2011-01-02
+Martin Doege, 2011-04-27
 
 """
 
 __author__    = "Martin C. Doege (mdoege@compuserve.com)"
 __copyright__ = "Copyright 2004-2011, Martin C. Doege"
 __license__   = "GPL"
-__version__   = "2.14"
+__version__   = "2.15"
 
 from  Tkinter import *
 import sys
@@ -595,6 +595,7 @@ class SearchWire(NewsWire):
 				hash = gethash(t.title, t.descr)
 				s.headlines[hash] = oldheadlines.get(hash, s.u_time)
 		s.content = keepcontent + newcontent
+		s.content.sort(_by_time_order)
 		return 0
 
 class Recently_visited(SearchWire):
@@ -1222,17 +1223,18 @@ class TkApp:
 		if isinstance(newsfeeds[s.sel_f], SearchWire):
 			s.b_info.config(state = DISABLED)
 			sortcontent = newsfeeds[s.sel_f].content
-			sortcontent.sort(_by_time_order)
+			# sortcontent.sort(_by_time_order)
 			if sortcontent:
 				history.add(sortcontent[s.sel_t])
-				sortcontent[s.sel_t].unread = False
-				item = sortcontent[s.sel_t]
-				hash = gethash(item.title, item.descr)
-				for f in newsfeeds:
-					if f is not newsfeeds[s.sel_f]:
-						for t in [x for x in f.content if gethash(
-							x.title, x.descr) == hash]:
-							t.unread = False
+				if sortcontent[s.sel_t].unread:
+					sortcontent[s.sel_t].unread = False
+					item = sortcontent[s.sel_t]
+					hash = gethash(item.title, item.descr)
+					for f in newsfeeds:
+						if f is not newsfeeds[s.sel_f]:
+							for t in [x for x in f.content if gethash(
+								x.title, x.descr) == hash]:
+								t.unread = False
 			items = [x.get_s_title() for x in sortcontent]
 		else:
 			if s.b_info.cget("state") == "disabled": s.b_info.config(state = NORMAL)
@@ -1572,6 +1574,7 @@ class TkApp:
 						if f.headlines.has_key(hash): del f.headlines[hash]
 		newsfeeds[s.sel_f].content   = []
 		newsfeeds[s.sel_f].headlines.clear()
+		newsfeeds[s.sel_f].lastresult = None
 		s.change_content(feed = s.sel_f, topic = 0)
 
 	def open(s, event = ""):
@@ -2055,7 +2058,12 @@ class TkApp:
 		# Also update the searches if one or more feeds need to be updated:
 		if some_feeds_need_updating: s._update_searches()
 
+		# Save window sizes and positions:
 		config['geom_root'] = s.parent.geometry()
+		try: config['geom_info'] = s.infowin.geometry()
+		except (TclError, Exception): pass
+		try: config['geom_search'] = s.searchwin.geometry()
+		except (TclError, Exception): pass
 
 		# Save program state automatically every ten minutes:
 		if (time.time() - s.last_saved > 600 and
