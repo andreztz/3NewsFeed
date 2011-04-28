@@ -6,7 +6,7 @@ NewsFeed
 
 A Python/Tk RSS/RDF/Atom news aggregator. See included README.html for documentation.
 
-Martin Doege, 2011-04-27
+Martin Doege, 2011-04-29
 
 """
 
@@ -1223,7 +1223,9 @@ class TkApp:
 		if isinstance(newsfeeds[s.sel_f], SearchWire):
 			s.b_info.config(state = DISABLED)
 			sortcontent = newsfeeds[s.sel_f].content
-			# sortcontent.sort(_by_time_order)
+			if (isinstance(newsfeeds[s.sel_f], Recently_visited) or
+				isinstance(newsfeeds[s.sel_f], Marked_items)):
+					sortcontent.sort(_by_time_order)
 			if sortcontent:
 				history.add(sortcontent[s.sel_t])
 				if sortcontent[s.sel_t].unread:
