@@ -1215,6 +1215,13 @@ class TkApp:
 		if feed < 0: feed = 0
 		newsfeeds[feed].get_news()
 		if topic >= len(newsfeeds[feed].content): topic = len(newsfeeds[feed].content) - 1
+		if feed != s.sel_f and isinstance(newsfeeds[feed], SearchWire):
+			newsfeeds[s.sel_f].content.sort(_by_time_order)
+		if topic == -2:
+			for n, q in enumerate(newsfeeds[feed].content):
+				if q.unread:
+					topic = n
+					break
 		if feed != s.sel_f and topic < 0: s.sel_t = 0
 		elif topic < 0: topic = 0
 		else: s.sel_t = topic
@@ -1222,22 +1229,18 @@ class TkApp:
 
 		if isinstance(newsfeeds[s.sel_f], SearchWire):
 			s.b_info.config(state = DISABLED)
-			sortcontent = newsfeeds[s.sel_f].content
-			if (isinstance(newsfeeds[s.sel_f], Recently_visited) or
-				isinstance(newsfeeds[s.sel_f], Marked_items)):
-					sortcontent.sort(_by_time_order)
-			if sortcontent:
-				history.add(sortcontent[s.sel_t])
-				if sortcontent[s.sel_t].unread:
-					sortcontent[s.sel_t].unread = False
-					item = sortcontent[s.sel_t]
+			if newsfeeds[s.sel_f].content:
+				history.add(newsfeeds[s.sel_f].content[s.sel_t])
+				if newsfeeds[s.sel_f].content[s.sel_t].unread:
+					newsfeeds[s.sel_f].content[s.sel_t].unread = False
+					item = newsfeeds[s.sel_f].content[s.sel_t]
 					hash = gethash(item.title, item.descr)
 					for f in newsfeeds:
 						if f is not newsfeeds[s.sel_f]:
 							for t in [x for x in f.content if gethash(
 								x.title, x.descr) == hash]:
 								t.unread = False
-			items = [x.get_s_title() for x in sortcontent]
+			items = [x.get_s_title() for x in newsfeeds[s.sel_f].content]
 		else:
 			if s.b_info.cget("state") == "disabled": s.b_info.config(state = NORMAL)
 			if newsfeeds[s.sel_f].content:
@@ -1511,15 +1514,10 @@ class TkApp:
 			s.change_content(feed = s.sel_f, topic = t - 1)
 			return
 		s.b_allread.config(state = DISABLED)
-		for f in range(s.sel_f, len(newsfeeds)):
+		for f in range(s.sel_f, len(newsfeeds)) + range(0, s.sel_f):
 			t = s._next_in_feed(feed = f)
 			if t:
-				s.change_content(feed = f, topic = t - 1)
-				return
-		for f in range(0, s.sel_f):
-			t = s._next_in_feed(feed = f)
-			if t:
-				s.change_content(feed = f, topic = t - 1)
+				s.change_content(feed = f, topic = -2)
 				return
 
 	def _next_in_feed(s, feed = 0, topic = 0):
