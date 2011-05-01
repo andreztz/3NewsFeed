@@ -6,7 +6,7 @@ NewsFeed
 
 A Python/Tk RSS/RDF/Atom news aggregator. See included README.html for documentation.
 
-Martin Doege, 2011-04-29
+Martin Doege, 2011-05-01
 
 """
 
@@ -595,7 +595,6 @@ class SearchWire(NewsWire):
 				hash = gethash(t.title, t.descr)
 				s.headlines[hash] = oldheadlines.get(hash, s.u_time)
 		s.content = keepcontent + newcontent
-		s.content.sort(_by_time_order)
 		return 0
 
 class Recently_visited(SearchWire):
@@ -931,7 +930,7 @@ class TkApp:
 		s.b_del.pack(side = RIGHT)
 		s.b_allread = Button(f4, text = "Mark All As Read", command = s.mark_all_as_read)
 		s.b_allread.pack(side = RIGHT)
-		s.b_next = Button(f4, text = "Next Unread", command = s.next)
+		s.b_next = Button(f4, text = "Next Unread", command = s.next_unread)
 		s.b_next.pack(side = RIGHT)
 
 		# Listboxes and Text widget:
@@ -1215,15 +1214,17 @@ class TkApp:
 		if feed < 0: feed = 0
 		newsfeeds[feed].get_news()
 		if topic >= len(newsfeeds[feed].content): topic = len(newsfeeds[feed].content) - 1
-		if feed != s.sel_f and isinstance(newsfeeds[feed], SearchWire):
+		if ((feed != s.sel_f and isinstance(newsfeeds[feed], SearchWire))
+		    or isinstance(newsfeeds[feed], Recently_visited)
+		    or isinstance(newsfeeds[feed], Marked_items)):
+			s.sel_f = feed
 			newsfeeds[s.sel_f].content.sort(_by_time_order)
 		if topic == -2:
 			for n, q in enumerate(newsfeeds[feed].content):
 				if q.unread:
 					topic = n
 					break
-		if feed != s.sel_f and topic < 0: s.sel_t = 0
-		elif topic < 0: topic = 0
+		if topic < 0: s.sel_t = 0
 		else: s.sel_t = topic
 		s.sel_f = feed
 
@@ -1503,9 +1504,9 @@ class TkApp:
 	def next_keyb(s, event = ""):
 		"Next unread item (keyboard navigation callback)."
 		s._hide_cursor()
-		s.next()
+		s.next_unread()
 
-	def next(s, event = ""):
+	def next_unread(s, event = ""):
 		"Jump to next unread item."
 		if s.total_unread == 1:
 			s.b_next.config(state = DISABLED)
