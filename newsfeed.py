@@ -6,12 +6,12 @@ NewsFeed
 
 A Python/Tk RSS/RDF/Atom news aggregator. See included README.html for documentation.
 
-Martin Doege, 2011-05-01
+Martin Doege, 2012-06-05
 
 """
 
 __author__    = "Martin C. Doege (mdoege@compuserve.com)"
-__copyright__ = "Copyright 2004-2011, Martin C. Doege"
+__copyright__ = "Copyright 2004-2012, Martin C. Doege"
 __license__   = "GPL"
 __version__   = "2.15"
 
