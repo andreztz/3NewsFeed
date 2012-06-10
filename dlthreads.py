@@ -4,11 +4,11 @@ Module that sets up download processes
 2011-01-03
 """
 
-import sys, socket, urllib2
+import sys, socket, urllib.request, urllib.error, urllib.parse
 socket.setdefaulttimeout(20)
 
 from multiprocessing import Queue, Process
-from Queue import Empty, Full
+from queue import Empty, Full
 import feedparser
 
 def worker():
@@ -33,7 +33,7 @@ def worker():
 
 def get_content_unicode(url):
 	"Get the URL content and convert to Unicode."
-	ugen = urllib2.urlopen(url)
+	ugen = urllib.request.urlopen(url)
 	rawhtml = ugen.read()
 	content_type = 'iso-8859-1'
 	th = ugen.info().typeheader

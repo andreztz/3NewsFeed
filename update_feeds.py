@@ -19,7 +19,7 @@ from newsfeed import *
 try:
 	pid = open(pid_file, 'r').read()
 	if len(sys.argv) == 2 and sys.argv[1] == '-v':
-		print "NewsFeed is currently running under PID %s, aborting update.\n" % pid
+		print("NewsFeed is currently running under PID %s, aborting update.\n" % pid)
 except:
 	newsfeeds, config = cPickle.load(open(config_file, 'rb'))
 

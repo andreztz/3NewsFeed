@@ -10,21 +10,21 @@
 
 from newsfeed import ContentItem, NewsWire, SearchWire, config_file, console_encoding
 
-import os, sys, string, cPickle
+import os, sys, string, pickle
 
 newfeeds = []
 config   = {}
 
 enc = console_encoding
 
-newsfeeds, config = cPickle.load(open(config_file, 'rb'))
+newsfeeds, config = pickle.load(open(config_file, 'rb'))
 
 try: name = sys.argv[1]
 except:
-	print "Please supply a feed name."
+	print("Please supply a feed name.")
 	sys.exit(1)
 
 for f in newsfeeds:
 	if f.name.lower() == name.lower():
 		for x in f.content:
-			print x.title.encode(enc, 'replace'), "::", x.descr.encode(enc, 'replace')
+			print(x.title.encode(enc, 'replace'), "::", x.descr.encode(enc, 'replace'))

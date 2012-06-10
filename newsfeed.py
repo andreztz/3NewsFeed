@@ -15,24 +15,24 @@ __copyright__ = "Copyright 2004-2012, Martin C. Doege"
 __license__   = "GPL"
 __version__   = "2.15"
 
-from  Tkinter import *
+from  tkinter import *
 import sys
 assert sys.version >= '2.6', "This program does not work with older versions of Python.\
  Please install Python 2.6 or later."
 assert sys.version < '3', "This version of the program is for Python v2 only.\
  You appear to be using Python v3."
-import os, sys, time, string, re, md5, webbrowser, cPickle, signal, socket, urllib2, difflib
+import os, sys, time, string, re, md5, webbrowser, pickle, signal, socket, urllib.request, urllib.error, urllib.parse, difflib
 socket.setdefaulttimeout(20)
 from multiprocessing import Queue
-from Queue import Empty, Full
+from queue import Empty, Full
 
 import feedparser, rssfinder, dlthreads
 
 try: import tkSnack
 except ImportError:
 	if __name__ == '__main__':
-		print "'Snack' not installed, audio notification will not work."
-		print " If you want it, get the module from http://www.speech.kth.se/snack/"
+		print("'Snack' not installed, audio notification will not work.")
+		print(" If you want it, get the module from http://www.speech.kth.se/snack/")
 	tkSnack = None
 
 
@@ -300,10 +300,10 @@ class ContentItem:
 
 	def show(s, num):
 		"Print item info for console interface."
-		print "[%2u] %s" % (num, s.get_title().encode(console_encoding, 'replace'))
+		print("[%2u] %s" % (num, s.get_title().encode(console_encoding, 'replace')))
 		if s.descr != "(none)":
-			print s.descr.encode(console_encoding, 'replace')
-		print "%80s" % s.link
+			print(s.descr.encode(console_encoding, 'replace'))
+		print("%80s" % s.link)
 
 	def get_p_title(s):
 		"Return textbox title of item."
@@ -370,12 +370,12 @@ class NewsWire:
 
 	def _get_atom(s, l):
 		"Get HTML or text content from Atom feed."
-		if not l: return u""
-		res = u""
+		if not l: return ""
+		res = ""
 		for x in l:
-			t = x.get("type", u"").lower()
-			if u"html" in t or u"text" in t or not t:
-				res = x.get("value", u"")
+			t = x.get("type", "").lower()
+			if "html" in t or "text" in t or not t:
+				res = x.get("value", "")
 		return res
 
 	def _get_diff(s, a, b, only_added = False):
@@ -402,7 +402,7 @@ class NewsWire:
 		"Get the URL content type, differentiate between HTML and XML."
 		if '.htm' in s.url: return 'text/html'
 		try:
-			ugen = urllib2.urlopen(s.url)
+			ugen = urllib.request.urlopen(s.url)
 			th = ugen.info().typeheader
 
 			# some servers mistakenly report "text/html" for XML files,
@@ -454,7 +454,7 @@ class NewsWire:
 					if not s.u_time: s.u_time = approx_time()
 					dip = ' '.join([x for x in di.split() if x[0] != '{'])
 
-					result['items'].append({'title': u'%s' %
+					result['items'].append({'title': '%s' %
 						entities(htmlrender(stripcontrol(dip)))[:80],
 						'description': di, 'link': s.url})
 				else:
@@ -471,32 +471,32 @@ class NewsWire:
 				except:
 					s.failed = True
 					return 0
-			s.title  = result['channel'].get('title', u"").strip()
+			s.title  = result['channel'].get('title', "").strip()
 			if s.name[0] == '?' and s.title: s.name = s.title
 			s.date   = (result['channel'].get('modified',
 				time.strftime("%Y-%m-%d %H:%M", time.localtime(s.u_time))).strip())
 			try:
-				s.descr  = ( result['channel'].get('description', u"").strip() or
+				s.descr  = ( result['channel'].get('description', "").strip() or
 					result['channel'].get('summary', s.descr).strip() )
-			except: s.descr = u""
+			except: s.descr = ""
 			for item in result['items']:
 				# Each item is a dictionary mapping properties to values
-				descr = ( item.get('description', u"") or
-					     s._get_atom(item.get('content', u"")) or
-					     item.get('summary', u"") or
-					     u"No description available." )
+				descr = ( item.get('description', "") or
+					     s._get_atom(item.get('content', "")) or
+					     item.get('summary', "") or
+					     "No description available." )
 				title = item.get('title', re.sub("<.*?>", "", descr)[:80])
 				hash = gethash(title, descr)
-				if hash not in s.headlines.keys():
+				if hash not in list(s.headlines.keys()):
 					s.headlines[hash] = s.u_time
-					link  = item.get('link', u"(none)")
+					link  = item.get('link', "(none)")
 					date  = item.get('modified', s.date)
 					enc   = item.get('enclosures', [])
 					newcontent.append(ContentItem(title, descr, link,
 							date, fromfeed = s.name, enclosure = enc))
 			s.content = newcontent + s.content
 
-			for i in s.headlines.keys():
+			for i in list(s.headlines.keys()):
 				if (time.time() - s.headlines[i]) / 86400 > s.expire:
 					for j in range(len(s.content) - 1, -1, -1):
 						try: marked = s.content[j].marked
@@ -505,7 +505,7 @@ class NewsWire:
 						  and not marked):
 							del s.content[j]
 							s.headlines[i] = None
-			for i in s.headlines.keys():
+			for i in list(s.headlines.keys()):
 				if s.headlines[i] == None: del s.headlines[i]
 		return len(newcontent)
 
@@ -520,28 +520,28 @@ class NewsWire:
 		else:
 			s.get_news()
 		if s.content == []:
-			print "\nCurrently no newsfeed. Please try again later."
+			print("\nCurrently no newsfeed. Please try again later.")
 			return
 		try:
-			print "\n%80s" % s.date
+			print("\n%80s" % s.date)
 		except:
 			pass
-		if s.name != "": print s.name.encode(console_encoding, 'replace'), "--",
+		if s.name != "": print(s.name.encode(console_encoding, 'replace'), "--", end=' ')
 		try:
-			print s.title.encode(console_encoding, 'replace')
+			print(s.title.encode(console_encoding, 'replace'))
 		except:
-			print
-		print 80 * '='
-		print
+			print()
+		print(80 * '=')
+		print()
 		i = 1
 		for item in s.content:
 			item.show(i)
 			item.unread = False
-			print
+			print()
 			i = i + 1
 		while 1:
 			try:
-				topic = input("\nPlease select your topic (\"0\" to go back to menu): ")
+				topic = eval(input("\nPlease select your topic (\"0\" to go back to menu): "))
 			except SyntaxError:
 				continue
 			if 0 < topic <= len(s.content):
@@ -656,7 +656,7 @@ def add_feeds(obj):
 						refresh = i[2], expire = i[3]))
 			else: newsfeeds.append(NewsWire(i[1], name=i[0]))
 		except IOError:
-			print "Error: Could not find a suitable newsfeed."
+			print("Error: Could not find a suitable newsfeed.")
 
 def add_feeds_helper(signum = None, frame = None):
 	"Add feeds from helper script. Called at the beginning of the program and when SIGUSR1 is received."
@@ -676,20 +676,20 @@ def _load_older_revision():
 	for x in range(1, 100):
 		name = "%s.%u" % (config_file, x)
 		try:
-			newsfeeds, config = cPickle.load(open(name, 'rb'))
-			print "*** Configuration file %s is unreadable or nonexistent." % config_file
-			print "*** Using older revision %s instead." % name
+			newsfeeds, config = pickle.load(open(name, 'rb'))
+			print("*** Configuration file %s is unreadable or nonexistent." % config_file)
+			print("*** Using older revision %s instead." % name)
 			return
 		except: pass
 	# Load a default configuration if nothing suitable is found on disk:
-	print "*** No configuration file found, loading defaults."
+	print("*** No configuration file found, loading defaults.")
 	add_feeds(initial)
 
 def load_feeds():
 	"Load feeds and configuration data from file."
 	global newsfeeds, config
 
-	try: newsfeeds, config = cPickle.load(open(config_file, 'rb'))
+	try: newsfeeds, config = pickle.load(open(config_file, 'rb'))
 	except: _load_older_revision()
 	if not [x for x in newsfeeds if isinstance(x, Recently_visited)]:
 		newsfeeds = [Recently_visited()] + newsfeeds
@@ -708,9 +708,9 @@ def version_file(filename, num_revs):
 
 def save():
 	"Save document cache and configuration options."
-	try: cPickle.dump((newsfeeds, config), open(config_file + ".current", 'wb'), 1)
+	try: pickle.dump((newsfeeds, config), open(config_file + ".current", 'wb'), 1)
 	except:
-		print "*** Error: Configuration file could not be written to disk."
+		print("*** Error: Configuration file could not be written to disk.")
 		return False
 	else:
 		version_file(config_file, old_revisions_to_keep)
@@ -804,7 +804,7 @@ def _entity_unicode(p):
 	for i in x:
 		if i.isdigit(): y += i
 		else: break
-	try: return unichr(long(y))
+	try: return chr(int(y))
 	except: return '_'
 
 def _replace_unicode(t):
@@ -857,7 +857,7 @@ def gethash(*args):
 	"Compute the MD5 hash of the arguments concatenated together."
 	h = md5.new()
 	for i in args:
-		if type(i) != type(u""): h.update(i)
+		if type(i) != type(""): h.update(i)
 		else: h.update(i.encode("utf-8", "replace"))
 	return h.hexdigest()
 
@@ -865,12 +865,12 @@ def text_interface():
 	"Present the user with a simple textual interface to the RSS feeds."
 	if newsfeeds:
 		while 1:
-			print "\nAvailable newsfeeds:\n"
+			print("\nAvailable newsfeeds:\n")
 			for i in range(len(newsfeeds)):
-				print "[%2u] %s" % (i+1,
-					newsfeeds[i].get_name().encode(console_encoding, 'replace'))
+				print("[%2u] %s" % (i+1,
+					newsfeeds[i].get_name().encode(console_encoding, 'replace')))
 			try:
-				feed = input("\nPlease select your feed (\"0\" to quit): ")
+				feed = eval(input("\nPlease select your feed (\"0\" to quit): "))
 			except SyntaxError: continue
 			if 0 < feed <= len(newsfeeds):
 				newsfeeds[feed-1].print_news()
@@ -1082,8 +1082,8 @@ class TkApp:
 
 	def _yview(s, *args):
 		"Update the message header and date listbox in unison."
-		apply(s.r11b.yview, args)
-		apply(s.r1b.yview, args)
+		s.r11b.yview(*args)
+		s.r1b.yview(*args)
 
 	def next_feed(s, event = ""):
 		"Jump to next feed."
@@ -1515,7 +1515,7 @@ class TkApp:
 			s.change_content(feed = s.sel_f, topic = t - 1)
 			return
 		s.b_allread.config(state = DISABLED)
-		for f in range(s.sel_f, len(newsfeeds)) + range(0, s.sel_f):
+		for f in list(range(s.sel_f, len(newsfeeds))) + list(range(0, s.sel_f)):
 			t = s._next_in_feed(feed = f)
 			if t:
 				s.change_content(feed = f, topic = -2)
@@ -1572,7 +1572,7 @@ class TkApp:
 					if f is not newsfeeds[s.sel_f]:
 						f.content = [x for x in f.content if gethash(
 								x.title, x.descr) != hash]
-						if f.headlines.has_key(hash): del f.headlines[hash]
+						if hash in f.headlines: del f.headlines[hash]
 		newsfeeds[s.sel_f].content   = []
 		newsfeeds[s.sel_f].headlines.clear()
 		newsfeeds[s.sel_f].lastresult = None
@@ -1823,7 +1823,7 @@ class TkApp:
 		s.cwin     = Toplevel()
 		wh, x, y   = config['geom_root'].split('+')
 		w, h       = wh.split('x')
-		x, y, w, h = [float(z) for z in x, y, w, h]
+		x, y, w, h = [float(z) for z in (x, y, w, h)]
 		w2, h2     = 480, 160
 		sx, sy     = root.winfo_screenwidth(), root.winfo_screenheight()
 		xpos, ypos = max(0, x + .5 * (w - w2)), max(0, y + .5 * (h - h2))
@@ -2119,6 +2119,6 @@ def main(nogui = False):
 	else: gui_interface()
 
 if __name__ == '__main__':
-	print "This is the NewsFeed module."
-	print "Please run 'newsfeed' or 'Start_NewsFeed.py' instead to launch the program."
-	print
+	print("This is the NewsFeed module.")
+	print("Please run 'newsfeed' or 'Start_NewsFeed.py' instead to launch the program.")
+	print()

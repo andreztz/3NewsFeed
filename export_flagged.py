@@ -7,27 +7,27 @@
 
 import newsfeed
 
-import cPickle
+import pickle
 
 newfeeds = []
 config   = {}
 
-newsfeeds, config = cPickle.load(open(newsfeed.config_file, 'rb'))
+newsfeeds, config = pickle.load(open(newsfeed.config_file, 'rb'))
 enc = newsfeed.console_encoding
 
 h1 = 'NewsFeed &mdash; Important Items'
 numbered = True
 
 
-print '<?xml version="1.0" encoding="%s" ?>' % enc
-print """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+print('<?xml version="1.0" encoding="%s" ?>' % enc)
+print("""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>%s</title>
 </head>
 <body>
-<h1>%s</h1>""" % (h1, h1)
+<h1>%s</h1>""" % (h1, h1))
 
 
 for i, f in enumerate(newsfeeds):
@@ -56,9 +56,9 @@ for i, f in enumerate(newsfeeds):
 			if numbered:
 				num = '[%u/%u]' % (n + 1, len(sortcontent))
 			else: num = ''
-			print '<small>%s</small><h2><a href="%s">%s</a> (%s)</h2>' % (num, link, title, feed)
-			print '<h3>%s</h3>' % date
-			print '%s' % descr
-			print '<h3>%s</h3><hr />' % link
+			print('<small>%s</small><h2><a href="%s">%s</a> (%s)</h2>' % (num, link, title, feed))
+			print('<h3>%s</h3>' % date)
+			print('%s' % descr)
+			print('<h3>%s</h3><hr />' % link)
 			
-print '</body></html>'
+print('</body></html>')

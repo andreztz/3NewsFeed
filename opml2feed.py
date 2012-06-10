@@ -17,7 +17,7 @@
 
 from newsfeed import ContentItem, NewsWire, SearchWire, config_file
 
-import os, sys, string, cPickle, fileinput, xml.sax
+import os, sys, string, pickle, fileinput, xml.sax
 
 from xml.sax.handler import *
 
@@ -26,7 +26,7 @@ config    = {}
 num   = 0
 total = 0
 
-newsfeeds, config = cPickle.load(open(config_file, 'rb'))
+newsfeeds, config = pickle.load(open(config_file, 'rb'))
 
 class OPMLHandler(ContentHandler):
 	def startElement(s, n, a):
@@ -52,7 +52,7 @@ if len(sys.argv) < 2:
 	sys.exit(1)
 xml.sax.parse(sys.argv[1], h)
 
-print "Added %u new feeds from a total of %u." % (num, total)
+print("Added %u new feeds from a total of %u." % (num, total))
 
-cPickle.dump((newsfeeds, config), open(config_file, 'wb'), 1)
+pickle.dump((newsfeeds, config), open(config_file, 'wb'), 1)
 

@@ -30,12 +30,12 @@ if feedurl[0:len('feed://')] == 'feed://':
 if feedurl[0:len('feed:')] == 'feed:':
 	feedurl = feedurl[len('feed:'):]
 
-print "Adding feed at", feedurl, "to the NewsFeed new entries file."
+print("Adding feed at", feedurl, "to the NewsFeed new entries file.")
 
 open(addfeed_file, 'a').write(feedurl + '\n')
 
 try:
 	pid = open(pid_file, 'r').read()
-	print "NewsFeed is currently running under PID %s." % pid
+	print("NewsFeed is currently running under PID %s." % pid)
 	os.kill(int(pid), signal.SIGUSR1)
-except: print "NewsFeed is not running, feeds will be read at next start."
+except: print("NewsFeed is not running, feeds will be read at next start.")
