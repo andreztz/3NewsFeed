@@ -48,7 +48,7 @@ downloaded.  Identifies itself as
 _debug = 0
 
 # ---------- required modules (should come with any Python distribution) ----------
-import sgmllib, urllib.request, urllib.parse, urllib.error, urllib.parse, re, sys, urllib.robotparser
+import sgmllib3, urllib.request, urllib.parse, urllib.error, urllib.parse, re, sys
 
 # ---------- optional modules (feedfinder will work without these, but with reduced functionality) ----------
 
@@ -82,68 +82,21 @@ if not dict:
 def _debuglog(message):
     if _debug: print(message)
 
-class RobotFileParserFixed(urllib.robotparser.RobotFileParser):
-    """patched version of RobotFileParser, integrating fixes from Python 2.3a2 and bug 690214"""
-    
-    def can_fetch(self, useragent, url):
-        """using the parsed robots.txt decide if useragent can fetch url"""
-        if self.disallow_all:
-            return 0
-        if self.allow_all:
-            return 1
-        # search for given user agent matches
-        # the first match counts
-        url = urllib.parse.quote(urllib.parse.urlparse(urllib.parse.unquote(url))[2]) or "/"
-        for entry in self.entries:
-            if entry.applies_to(useragent):
-                if not entry.allowance(url):
-                    return 0
-        # agent not found ==> access granted
-        return 1
-    
 class URLGatekeeper:
-    """a class to track robots.txt rules across multiple servers"""
-    def __init__(self):
-        self.rpcache = {} # a dictionary of RobotFileParserFixed objects, by domain
-        self.urlopener = urllib.request.FancyURLopener()
-        self.urlopener.version = "feedfinder/" + __version__ + " " + self.urlopener.version + " +http://diveintomark.org/projects/feed_finder/"
-        _debuglog(self.urlopener.version)
-        self.urlopener.addheaders = [('User-agent', self.urlopener.version)]
-        urllib.robotparser.URLopener.version = self.urlopener.version
-        urllib.robotparser.URLopener.addheaders = self.urlopener.addheaders
-        
-    def _getrp(self, url):
-        protocol, domain = urllib.parse.urlparse(url)[:2]
-        if domain in self.rpcache:
-            return self.rpcache[domain]
-        baseurl = '%s://%s' % (protocol, domain)
-        robotsurl = urllib.parse.urljoin(baseurl, 'robots.txt')
-        _debuglog('fetching %s' % robotsurl)
-        rp = RobotFileParserFixed(robotsurl)
-        rp.read()
-        self.rpcache[domain] = rp
-        return rp
-        
-    def can_fetch(self, url):
-        rp = self._getrp(url)
-        allow = rp.can_fetch(self.urlopener.version, url)
-        _debuglog("Gatekeeper examined %s and said %s" % (url, allow))
-        return allow
-
     def get(self, url):
         if not self.can_fetch(url): return ''
         return self.urlopener.open(url).read()
 
 _gatekeeper = URLGatekeeper()
 
-class BaseParser(sgmllib.SGMLParser):
+class BaseParser(sgmllib3.SGMLParser):
     def __init__(self, baseuri):
-        sgmllib.SGMLParser.__init__(self)
+        sgmllib3.SGMLParser.__init__(self)
         self.links = []
         self.baseuri = baseuri
         
     def normalize_attrs(self, attrs):
-        attrs = [(k.lower(), sgmllib.charref.sub(lambda m: chr(int(m.groups()[0])), v).strip()) for k, v in attrs]
+        attrs = [(k.lower(), sgmllib3.charref.sub(lambda m: chr(int(m.groups()[0])), v).strip()) for k, v in attrs]
         attrs = [(k, k in ('rel','type') and v.lower() or v) for k, v in attrs]
         return attrs
         

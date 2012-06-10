@@ -60,6 +60,6 @@ def start():
 	urlr = Queue()		# result queue
 
 	for i in range(num_w):
-    		ti = Process(target=worker)
-   		ti.daemon = True
-   		ti.start()
+		ti = Process(target=worker)
+		ti.daemon = True
+		ti.start()
