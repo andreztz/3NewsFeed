@@ -34,7 +34,7 @@ for f in newsfeeds:
 		except: pass
 		res.append( [name, size] )
 
-res.sort(key=lambda r: r[1])
+res.sort(key=lambda r: -r[1])
 
 print()
 print("%30s  |  %s" % ("Feed name", "Size (bytes)"))

@@ -31,7 +31,7 @@ for f in newsfeeds:
 		#	name = name.encode(console_encoding, 'replace')
 		res.append( [name, (t - v) / 86400.] )
 
-res.sort(key=lambda r: r[1])
+res.sort(key=lambda r: -r[1])
 
 print()
 print("%30s  |  %s" % ("Feed name", "# of days since download of latest item"))
