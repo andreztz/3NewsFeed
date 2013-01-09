@@ -6,19 +6,19 @@ NewsFeed
 
 A Python/Tk RSS/RDF/Atom news aggregator. See included README.html for documentation.
 
-Martin Doege, 2012-06-05
+Martin Doege, 2013-01-09
 
 """
 
 __author__    = "Martin C. Doege (mdoege@compuserve.com)"
-__copyright__ = "Copyright 2004-2012, Martin C. Doege"
+__copyright__ = "Copyright 2004-2013, Martin C. Doege"
 __license__   = "GPL"
-__version__   = "2.15"
+__version__   = "3.0"
 
 from  tkinter import *
 import sys
-assert sys.version >= '2.6', "This program does not work with older versions of Python.\
- Please install Python 2.6 or later."
+assert sys.version >= '3', "This program does not work with older versions of Python.\
+ Please install Python 3.x."
 
 import os, sys, time, string, re, webbrowser, pickle, signal, socket, urllib.request, urllib.error, urllib.parse, difflib
 socket.setdefaulttimeout(20)
@@ -26,15 +26,7 @@ from hashlib import md5
 from multiprocessing import Queue
 from queue import Empty, Full
 
-import feedparser, rssfinder, dlthreads
-
-try: import tkSnack
-except ImportError:
-	if __name__ == '__main__':
-		print("'Snack' not installed, audio notification will not work.")
-		print(" If you want it, get the module from http://www.speech.kth.se/snack/")
-	tkSnack = None
-
+import feedparser, rssfinder, dlthreads, play_wav
 
 ################################################################################################
 
@@ -44,7 +36,8 @@ except ImportError:
 # Setting this to a nonexistent filename will disable sound notification:
 soundfile = os.getenv("NEWSFEED_SOUND")
 if not soundfile:
-	soundfile = "/usr/X11R6/share/gnome/sounds/email.wav"
+	soundfile = "/usr/share/newsfeed/sounds/email.wav"
+sound = play_wav.Sound()
 
 # Media player used for opening enclosures. A few suggestions for different systems:
 media_player = os.getenv("MEDIA_PLAYER")
@@ -1211,8 +1204,11 @@ class TkApp:
 
 		# Play notification sound if there are new unread messages:
 		if not s.total_unread and i:
-			try: sound.play(blocking = 1)
-			except (TclError, Exception): pass
+			if soundfile != "none":
+				try:
+					sound.playFile(soundfile)
+				except:
+					print("Audio file", soundfile, "not found!")
 		s.total_unread = i
 
 	def _active(s, str, a, b, mark = 0):
@@ -2110,17 +2106,6 @@ def gui_interface():
 
 	root.title(config['progname'] + " - " + newsfeeds[0].name)
 	root.geometry(config['geom_root'])
-
-	if tkSnack != None:
-		tkSnack.initializeSnack(root)
-		try: sound = tkSnack.Sound(load = soundfile)
-		except TclError:
-			try: sound = tkSnack.Sound(load = os.path.basename(soundfile))
-			except TclError:
-				try: sound = tkSnack.Sound(load = os.path.join(sys.prefix,
-						"sounds", os.path.basename(soundfile)))
-				except: sound = dummysound()
-	else: sound = dummysound()
 
 	app = TkApp(root)
 	app.change_content()
