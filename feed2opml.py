@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# 2007-04-23
+# 2013-01-09
 
 # Dump NewsFeed database as an OPML file.
 
@@ -27,9 +27,7 @@ def mkfile(t):
 for i,f in enumerate(newsfeeds):
 	if not isinstance(f, SearchWire):
 		title = f.name.replace('"', '\\"').replace('&', '&amp;')
-		if type(title) == type(""): title = title.encode(enc, "replace")
 		name = f.name
-		if type(name) == type(""): name = name.encode(enc, "replace")		
 		url = f.url.replace('&', '&amp;')
 		homeurl = f.homeurl.replace('&', '&amp;')
 		fn = 'filename="%s%04u.xml"' % (mkfile(name), i + 1)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# 2005-06-05
+# 2013-01-09
 
 # Dump the contents of the feed with the name
 #   given on the command line -- match is not case-sensitive.
@@ -15,8 +15,6 @@ import os, sys, string, pickle
 newfeeds = []
 config   = {}
 
-enc = console_encoding
-
 newsfeeds, config = pickle.load(open(config_file, 'rb'))
 
 try: name = sys.argv[1]
@@ -27,4 +25,4 @@ except:
 for f in newsfeeds:
 	if f.name.lower() == name.lower():
 		for x in f.content:
-			print(x.title.encode(enc, 'replace'), "::", x.descr.encode(enc, 'replace'))
+			print(x.title, "::", x.descr)

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: latin-1 -*-
 
 """
 NewsFeed
@@ -154,7 +153,6 @@ initial = [
   ("Wired News",         "http://www.wired.com/rss/index.xml"),
   ("ScienceDaily",       "http://www.sciencedaily.com/newsfeed.xml",                               60, 10),
   ("Slashdot",           "http://slashdot.org/slashdot.rss"),
-  ("Digg",               "http://digg.com/rss/index.xml",                                          30,  3),
   ("MetaFilter",         "http://feeds.feedburner.com/Metafilter",                                 30,  3),
   ("Freshmeat",          "http://freshmeat.net/index.atom",                                        15,  1),
   ("Food Consumer",      "http://www.foodconsumer.org/newsite/feed/index.1.rss",                   60, 10),
@@ -550,7 +548,7 @@ class SearchWire(NewsWire):
 		s.case       = case
 		s.words      = words
 		s.only_unread = only_unread
-		if not case: s.terms = string.lower(s.terms)
+		if not case: s.terms = s.terms.lower()
 		s.name       = "Search for '" + s.terms + "'"
 		s.content    = []
 		s.headlines  = {}

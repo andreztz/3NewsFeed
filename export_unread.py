@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# 2007-02-26
+# 2013-01-09
 
 # Export unread items to XHTML file (prints to standard output).
 #   Usage: ./export_unread.py  > unread.html
@@ -12,17 +12,15 @@ newfeeds = []
 config   = {}
 
 newsfeeds, config = pickle.load(open(newsfeed.config_file, 'rb'))
-enc = newsfeed.console_encoding
 
-h1 = 'NewsFeed &mdash; Unread Items'
+h1 = 'NewsFeed — Unread Items'
 numbered = True
 
 
-print('<?xml version="1.0" encoding="%s" ?>' % enc)
-print("""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+print("""<!doctype html>
+<html>
 <head>
+<meta charset="UTF-8">
 <title>%s</title>
 </head>
 <body>
@@ -37,18 +35,13 @@ for i, f in enumerate(newsfeeds):
 		unread += len(arr)
 		items += arr
 
-for x, n in zip(items, list(range(unread))):
-	title = x.title.encode(enc, "replace")
-	descr = x.descr.encode(enc, "replace")
-	link  = x.link.encode(enc, "replace")
-	date  = x.date.encode(enc, "replace")
-	feed  = x.fromfeed.encode(enc, "replace")
+for n, x in enumerate(items):
 	if numbered:
 		num = '[%u/%u]' % (n + 1, unread)
 	else: num = ''
-	print('<small>%s</small><h2><a href="%s">%s</a> (%s)</h2>' % (num, link, title, feed))
-	print('<h3>%s</h3>' % date)
-	print('%s' % descr)
-	print('<h3>%s</h3><hr />' % link)
+	print('<small>%s</small><h2><a href="%s">%s</a> (%s)</h2>' % (num, x.link, x.title, x.fromfeed))
+	print('<h3>%s</h3>' % x.date)
+	print('%s' % x.descr)
+	print('<h3>%s</h3><hr />' % x.link)
 		
 print('</body></html>')

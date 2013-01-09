@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# 2006-01-26
+# 2013-01-09
 
 # Add feeds from OPML file to NewsFeed database.
 
@@ -33,7 +33,8 @@ class OPMLHandler(ContentHandler):
 		global newsfeeds, urls, num, total
 
 		total += 1
-		name = string.replace(a.get('title') or a.get('text', "?"), '\\"', '"')
+		st = a.get('title') or a.get('text', "?")
+		name = st.replace('\\"', '"')
 		url  = a.get('xmlurl') or a.get('xmlUrl') or a.get('url', "http://")
 		homeurl = a.get('htmlurl') or a.get('htmlUrl') or "http://"
 
