@@ -1208,7 +1208,7 @@ class TkApp:
 				try:
 					sound.playFile(soundfile)
 				except:
-					print("Audio file", soundfile, "not found!")
+					print("Audio file", soundfile, "not found or audio interface unavailable!")
 		s.total_unread = i
 
 	def _active(s, str, a, b, mark = 0):
@@ -1782,14 +1782,14 @@ class TkApp:
 		newsfeeds[s.infosel].homeurl = s.e2.get().strip()
 
 		refresh = s.o1var.get()
-		rf = string.split(refresh)[0]
+		rf = refresh.split()[0]
 		if rf.isdigit():
 			newsfeeds[s.infosel].refresh = int(rf)
 		else:
 			newsfeeds[s.infosel].refresh = custom_interval
 
 		expire  = s.o2var.get()
-		try: newsfeeds[s.infosel].expire  = int(string.split(expire)[0])
+		try: newsfeeds[s.infosel].expire  = int(expire.split()[0])
 		except ValueError: newsfeeds[s.infosel].expire = 999999
 		
 		config['geom_info'] = s.infowin.geometry()
