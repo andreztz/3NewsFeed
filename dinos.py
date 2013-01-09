@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# 2007-04-20
+# 2013-01-09
 
 # Print the feeds that have not been updated in a long time,
 #   sorted by the most recent item's download time in days.
@@ -16,11 +16,6 @@ try:    min_age = int(sys.argv[1])
 except: min_age = 10			# default minimum age of a feed in days
 					#   for it to be considered a dinosaur
 
-def comp(x, y):
-	"Compare two items by time."
-	if x[1] - y[1] < 0: return 1
-	else: return -1
-
 
 newsfeeds, config = pickle.load(open(config_file, 'rb'))
 
@@ -32,11 +27,11 @@ for f in newsfeeds:
 		try: v = max(f.headlines.values())
 		except: continue
 		name = f.name
-		if type(name) == type(""):
-			name = name.encode(console_encoding, 'replace')
+		#if type(name) == type(""):
+		#	name = name.encode(console_encoding, 'replace')
 		res.append( [name, (t - v) / 86400.] )
 
-res.sort(comp)
+res.sort(key=lambda r: r[1])
 
 print()
 print("%30s  |  %s" % ("Feed name", "# of days since download of latest item"))

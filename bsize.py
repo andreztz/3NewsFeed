@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# 2009-06-17
+# 2013-01-09
 
 # Print the number of bytes occupied by the contents of each feed
 
@@ -14,12 +14,6 @@ try:    min_size = int(sys.argv[1])
 except: min_size = 10000		# default minimum size reported
 
 
-def comp(x, y):
-	"Compare two items by time."
-	if x[1] - y[1] < 0: return 1
-	else: return -1
-
-
 newsfeeds, config = pickle.load(open(config_file, 'rb'))
 
 res = []
@@ -27,8 +21,8 @@ res = []
 for f in newsfeeds:
 	if not isinstance(f, SearchWire):
 		name = f.name
-		if type(name) == type(""):
-			name = name.encode(console_encoding, 'replace')
+		#if type(name) == type(""):
+		#	name = name.encode(console_encoding, 'replace')
 		size = 0
 		for n in f.content:
 			size += (len(n.title) + len(n.descr) + len(n.link)
@@ -40,7 +34,7 @@ for f in newsfeeds:
 		except: pass
 		res.append( [name, size] )
 
-res.sort(comp)
+res.sort(key=lambda r: r[1])
 
 print()
 print("%30s  |  %s" % ("Feed name", "Size (bytes)"))
