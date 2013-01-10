@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# 2013-01-09
+# 2013-01-10
 
 # Print the feeds that have not been updated in a long time,
 #   sorted by the most recent item's download time in days.
@@ -8,7 +8,7 @@
 # Usage: dinos.py [minimum age in days]
 
 
-from newsfeed import NewsWire, SearchWire, config_file, console_encoding
+from newsfeed import NewsWire, SearchWire, config_file
 
 import sys, time, pickle
 
@@ -27,8 +27,6 @@ for f in newsfeeds:
 		try: v = max(f.headlines.values())
 		except: continue
 		name = f.name
-		#if type(name) == type(""):
-		#	name = name.encode(console_encoding, 'replace')
 		res.append( [name, (t - v) / 86400.] )
 
 res.sort(key=lambda r: -r[1])

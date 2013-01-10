@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# 2013-01-09
+# 2013-01-10
 
 # Dump the contents of the feed with the name
 #   given on the command line -- match is not case-sensitive.
@@ -8,7 +8,7 @@
 #   Format is
 #              TITLE :: DESCRIPTION
 
-from newsfeed import ContentItem, NewsWire, SearchWire, config_file, console_encoding
+from newsfeed import ContentItem, NewsWire, SearchWire, config_file
 
 import os, sys, string, pickle
 

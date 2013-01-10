@@ -97,12 +97,6 @@ fontsize['URL']         = 12
 fontsize['Date']        = 12
 fontsize['Navigation']  = 14
 
-# Default console encoding (is often not set correctly on the system, so it
-#                           can be modified here)
-console_encoding = sys.getdefaultencoding()
-if console_encoding == 'ascii': console_encoding = 'iso-8859-1'
-
-
 ### Parse an (optional) Python script with additional configuration
 ###  (overrides the settings above):
 
@@ -292,9 +286,9 @@ class ContentItem:
 
 	def show(s, num):
 		"Print item info for console interface."
-		print("[%2u] %s" % (num, s.get_title().encode(console_encoding, 'replace')))
+		print("[%2u] %s" % (num, s.get_title()))
 		if s.descr != "(none)":
-			print(s.descr.encode(console_encoding, 'replace'))
+			print(s.descr)
 		print("%80s" % s.link)
 
 	def get_p_title(s):
@@ -518,9 +512,9 @@ class NewsWire:
 			print("\n%80s" % s.date)
 		except:
 			pass
-		if s.name != "": print(s.name.encode(console_encoding, 'replace'), "--", end=' ')
+		if s.name != "": print(s.name, "--", end=' ')
 		try:
-			print(s.title.encode(console_encoding, 'replace'))
+			print(s.title)
 		except:
 			print()
 		print(80 * '=')
@@ -882,7 +876,7 @@ def text_interface():
 			print("\nAvailable newsfeeds:\n")
 			for i in range(len(newsfeeds)):
 				print("[%2u] %s" % (i+1,
-					newsfeeds[i].get_name().encode(console_encoding, 'replace')))
+					newsfeeds[i].get_name()))
 			try:
 				feed = eval(input("\nPlease select your feed (\"0\" to quit): "))
 			except SyntaxError: continue
@@ -1375,12 +1369,11 @@ class TkApp:
 		del e[1]
 		f = open(export_file, 'w')
 		for x in e:
-			f.write(x.encode(console_encoding, 'replace') + '\n')
+			f.write(x + '\n')
 		f.close()
 		os.system(export_application % {
 			'description_path': export_file,
-			'title': (e[2].encode(console_encoding, 'replace')
-							or 'NewsFeed item')
+			'title': (e[2] or 'NewsFeed item')
 		})
 
 	def _change_text(s, obj):

@@ -7,7 +7,7 @@
 # Usage: ./feed2opml.py > myfeeds.opml
 
 
-from newsfeed import ContentItem, NewsWire, SearchWire, config_file, console_encoding
+from newsfeed import ContentItem, NewsWire, SearchWire, config_file
 
 import os, pickle, html
 
@@ -15,9 +15,8 @@ newfeeds = []
 config   = {}
 
 newsfeeds, config = pickle.load(open(config_file, 'rb'))
-enc = console_encoding
 
-print('<?xml version="1.0" encoding="%s"?>' % enc)
+print('<?xml version="1.0" encoding="utf-8"?>')
 print('<opml version="1.0">\n<head><title>NewsFeed Bookmarks</title></head>\n<body>')
 
 def mkfile(t):

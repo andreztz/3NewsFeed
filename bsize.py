@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-# 2013-01-09
+# 2013-01-10
 
 # Print the number of bytes occupied by the contents of each feed
 
 # Usage: bsize [minimum size in bytes]
 
-from newsfeed import NewsWire, SearchWire, config_file, console_encoding
+from newsfeed import NewsWire, SearchWire, config_file
 
 import sys, time, pickle
 
@@ -21,8 +21,6 @@ res = []
 for f in newsfeeds:
 	if not isinstance(f, SearchWire):
 		name = f.name
-		#if type(name) == type(""):
-		#	name = name.encode(console_encoding, 'replace')
 		size = 0
 		for n in f.content:
 			size += (len(n.title) + len(n.descr) + len(n.link)
