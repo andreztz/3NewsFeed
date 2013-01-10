@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# 2013-01-09
+# 2013-01-10
 
 # Dump NewsFeed database as an OPML file.
 
@@ -9,7 +9,7 @@
 
 from newsfeed import ContentItem, NewsWire, SearchWire, config_file, console_encoding
 
-import os, pickle
+import os, pickle, html
 
 newfeeds = []
 config   = {}
@@ -26,10 +26,10 @@ def mkfile(t):
 
 for i,f in enumerate(newsfeeds):
 	if not isinstance(f, SearchWire):
-		title = f.name.replace('"', '\\"').replace('&', '&amp;')
+		title = html.escape(f.name.replace('"', '\\"'))
 		name = f.name
-		url = f.url.replace('&', '&amp;')
-		homeurl = f.homeurl.replace('&', '&amp;')
+		url = html.escape(f.url)
+		homeurl = html.escape(f.homeurl)
 		fn = 'filename="%s%04u.xml"' % (mkfile(name), i + 1)
 		print('<outline text="%s" title="%s" xmlUrl="%s" description="" type="rss" htmlUrl="%s" %s />' % (
 			title, title, url, homeurl, fn))

@@ -24,6 +24,7 @@ socket.setdefaulttimeout(20)
 from hashlib import md5
 from multiprocessing import Queue
 from queue import Empty, Full
+from html.entities import html5 as entdic
 
 import feedparser, rssfinder, dlthreads, play_wav
 
@@ -180,9 +181,9 @@ class InternetConnectivity:
 		if s.status: delta = 90
 		else: delta = 30
 		if s.override: return False
-		# Check regularly, but give the GUI an initial five seconds to fully display itself:
+		# Check regularly, but give the GUI an initial two seconds to fully draw itself:
 		if time.time() - s.lastchecked > delta or (
-				s.app_start and time.time() - s.lastchecked > 5):
+				s.app_start and time.time() - s.lastchecked > 2):
 			s.lastchecked = time.time()
 			try: t = socket.gethostbyname(s.host)
 			except: s.status = False
@@ -825,18 +826,21 @@ def _replace_unicode(t):
 	return t
 
 def entities(t):
-	"Replace some entities and all decimal character codes with their Unicode characters."
-	if '&' not in t: return t
-	subs = (('&mdash;', '&#8212;'), ('&#151;', '&#8212;'),
-		('&ndash;', '&#8211;'), ('&#150;', '&#8211;'),
-		('&amp;', '&'), ('&nbsp;', ' '), ('&lt;', '<'), ('&gt;', '>'), ('&apos;', "'"),
-		('&hellip;', '&#8230;'), ('&bull;', '&#8226;'), ('&dagger;', '&#8224;'),
-		('&quot;', '"'), ('&ldquo;', '&#8220;'), ('&rdquo;', '&#8221;'),
-		('&plusmn;', '+-'), ('&lsquo;', '&#8216;'), ('&rsquo;', "&#8217;"))
-	for i in subs: t = t.replace(i[0], i[1])
-	if '&#' not in t: return t
-	t = _replace_unicode(t)
-	return t
+	"Replace entities and decimal character codes with their Unicode characters."
+	if '&#' in t:
+		t = _replace_unicode(t)
+	s, cnt, t2 = 0, 0, t
+	t2 = t2.replace("&amp;", "󠀦")	# replace ampersand entity with tag ampersand character temporarily
+	while '&' in t2:
+		try:
+			n1 = t.find('&', s)
+			n2 = t.find(';', n1)
+			t2 = t2.replace(t[n1:n2+1], entdic[t[n1+1:n2+1]])
+			s += 1
+			cnt += 1
+			if cnt > 2000: break		# prevent infinite loops
+		except: break
+	return t2.replace("󠀦", "&")
 
 def htmlrender(t):
 	"Transform HTML markup to printable text."
