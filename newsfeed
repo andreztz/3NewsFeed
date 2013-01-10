@@ -5,13 +5,13 @@ Newsfeed wrapper script (like Start_NewsFeed.py, but without the extension)
 
 A Python/Tk RSS/RDF/Atom news aggregator. See included README.html for documentation.
 
-Martin Doege, 2013-01-09
+Martin Doege, 2013-01-10
 
 """
 
 import sys
 
-assert sys.version >= '3', "Please install Python 3."
+assert sys.version >= '3.3', "Please install Python 3.3 or later."
 
 nogui = '--nogui' in sys.argv
 

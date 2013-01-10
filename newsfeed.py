@@ -5,7 +5,7 @@ NewsFeed
 
 A Python/Tk RSS/RDF/Atom news aggregator. See included README.html for documentation.
 
-Martin Doege, 2013-01-09
+Martin Doege, 2013-01-10
 
 """
 
@@ -16,8 +16,8 @@ __version__   = "3.0"
 
 from  tkinter import *
 import sys
-assert sys.version >= '3', "This program does not work with older versions of Python.\
- Please install Python 3.x."
+assert sys.version >= '3.3', "This program does not work with older versions of Python.\
+ Please install Python 3.3 or later."
 
 import os, sys, time, string, re, webbrowser, pickle, signal, socket, urllib.request, urllib.error, urllib.parse, difflib
 socket.setdefaulttimeout(20)
