@@ -750,39 +750,9 @@ def about_equal(x, y):
 	if abs(x - y) < eps: return True
 	else: return False
 
-def cmp_to_key(mycmp):
-	"Convert a cmp= function into a key= function (from http://wiki.python.org/moin/HowTo/Sorting)"
-	class K(object):
-		def __init__(self, obj, *args):
-			self.obj = obj
-		def __lt__(self, other):
-			return mycmp(self.obj, other.obj) < 0
-		def __gt__(self, other):
-			return mycmp(self.obj, other.obj) > 0
-		def __eq__(self, other):
-			return mycmp(self.obj, other.obj) == 0
-		def __le__(self, other):
-			return mycmp(self.obj, other.obj) <= 0
-		def __ge__(self, other):
-			return mycmp(self.obj, other.obj) >= 0
-		def __ne__(self, other):
-			return mycmp(self.obj, other.obj) != 0
-	return K
-
-def _by_time_order(x, y):
-	"Function for sorting items by download time (or alphabetically if time stamps are equal)."
-	a = newsfeeds[app.sel_f].headlines.get(gethash(x.title, x.descr), 0)
-	b = newsfeeds[app.sel_f].headlines.get(gethash(y.title, y.descr), 0)
-
-	c = x.title + x.fromfeed
-	d = y.title + y.fromfeed
-
-	if a == b:
-		if c == d: return 0
-		elif c > d: return 1
-		else: return -1
-	elif a < b: return 1
-	else: return -1
+def _by_time_order(x):
+	"Function for sorting items by download time."
+	return newsfeeds[app.sel_f].headlines.get(gethash(x.title, x.descr), 0)
 
 def title_caps(t):
 	"Do a decent title capitalization."
@@ -1229,7 +1199,7 @@ class TkApp:
 		    or isinstance(newsfeeds[feed], Recently_visited)
 		    or isinstance(newsfeeds[feed], Marked_items)):
 			s.sel_f = feed
-			newsfeeds[s.sel_f].content.sort(key=cmp_to_key(_by_time_order))
+			newsfeeds[s.sel_f].content.sort(key=lambda r: -_by_time_order(r))
 		if topic == -2:
 			for n, q in enumerate(newsfeeds[feed].content):
 				if q.unread:
