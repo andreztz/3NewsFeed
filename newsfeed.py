@@ -5,7 +5,7 @@ NewsFeed
 
 A Python/Tk RSS/RDF/Atom news aggregator. See included README.html for documentation.
 
-Martin Doege, 2013-01-10
+Martin Doege, 2013-01-11
 
 """
 
@@ -815,6 +815,7 @@ def htmlrender(t):
 		('</blockquote>', ' {/ {/ '), ('<img', '[Image]<'),
 		('A href=', 'a href='), ('a  href=', 'a href='),
 		('<a class="reference"', '<a'),
+		('<a target="_blank"', '<a'),
 		('<a href="', ' {[ '), ('">', ' | '), ('</a>', ' ]} '))
 	for i in subs:
 		t = t.replace(i[0],         i[1])
