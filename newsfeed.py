@@ -1924,6 +1924,10 @@ class TkApp:
 		global netchecker
 		cur = None
 
+		s.lb.xview_moveto(0.0)
+		s.r1b.xview_moveto(0.0)
+		s.r11b.xview_moveto(0.0)
+
 		if len(s.lb.curselection())  and int(s.lb.curselection()[0])    != s.sel_f:
 			s.idle_since = time.time()
 			s.change_content(feed = s.lb.curselection()[0])
