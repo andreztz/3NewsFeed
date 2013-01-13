@@ -5,7 +5,7 @@ NewsFeed
 
 A Python/Tk RSS/RDF/Atom news aggregator. See included README.html for documentation.
 
-Martin Doege, 2013-01-11
+Martin Doege, 2013-01-13
 
 """
 
@@ -25,6 +25,7 @@ from hashlib import md5
 from multiprocessing import Queue
 from queue import Empty, Full
 from html.entities import html5 as entdic
+from html.parser import HTMLParser
 
 import feedparser, rssfinder, dlthreads, play_wav
 
@@ -293,10 +294,10 @@ class ContentItem:
 
 	def get_p_title(s):
 		"Return textbox title of item."
-		title = entities(stripcontrol(s.title)).strip()
+		title = htmlrender(stripcontrol(s.title)).strip()
 		title = re.sub("<.*?>", "", title)
 		if not title:
-			title = entities(stripcontrol(s.descr))
+			title = htmlrender(stripcontrol(s.descr))
 			title = re.sub("<.*?>", "", title)
 			if len(title) > 80:
 				title = title[:80] + "..."
@@ -441,7 +442,7 @@ class NewsWire:
 					dip = ' '.join([x for x in di.split() if x[0] != '{'])
 
 					result['items'].append({'title': '%s' %
-						entities(htmlrender(stripcontrol(dip)))[:80],
+						htmlrender(stripcontrol(dip))[:80],
 						'description': di, 'link': s.url})
 				else:
 					return 0
@@ -782,49 +783,63 @@ def _entity_unicode(p):
 	try: return chr(int(y))
 	except: return '_'
 
-def _replace_unicode(t):
-	"Do decimal unicode character code to Unicode string translation."
-	p = re.compile(r'&#([^;]+);')
-	try: t = re.sub(p, _entity_unicode, t)
-	except: pass
-	return t
-
-def entities(t):
-	"Replace entities and decimal character codes with their Unicode characters."
-	if '&#' in t:
-		t = _replace_unicode(t)
-	s, cnt, t2 = 0, 0, t
-	t2 = t2.replace("&amp;", "󠀦")	# replace ampersand entity with tag ampersand character temporarily
-	while '&' in t2:
-		try:
-			n1 = t.find('&', s)
-			n2 = t.find(';', n1)
-			t2 = t2.replace(t[n1:n2+1], entdic[t[n1+1:n2+1]])
-			s += 1
-			cnt += 1
-			if cnt > 2000: break		# prevent infinite loops
-		except: break
-	return t2.replace("󠀦", "&")
+class MyHTMLParser(HTMLParser):
+	"Parser for htmlrender function."
+	def __init__(s):
+		s.out = ''
+		s.islink = False
+		super().__init__(s)
+	def handle_starttag(s, t, a):
+		if t == 'a':
+			for at in a:
+				if at[0] == 'href':
+					s.out += ' {[ ' + at[1] + ' | '
+		if t == 'br':
+			s.out += ' {/ '
+		if t == 'b':
+			s.out += '*'
+		if t == 'strong':
+			s.out += '**'
+		if t == 'u':
+			s.out += '_'
+		if t == 'i' or t == 'em':
+			s.out += '~'
+		if t == 'img':
+			s.out += '[Image]'
+		if t == 'blockquote':
+			s.out += ' {/ {/ '
+		if t == 'li':
+			s.out += ' {/ *'
+	def handle_endtag(s, t):
+		if t == 'a':
+			s.out += ' ]} '
+		if t == 'p':
+			s.out += ' {/ {/ '
+		if t == 'b':
+			s.out += '*'
+		if t == 'strong':
+			s.out += '**'
+		if t == 'u':
+			s.out += '_'
+		if t == 'i' or t == 'em':
+			s.out += '~'
+		if t == 'li':
+			s.out += ' {/ '
+	def handle_data(s, d):
+		s.out += d
+	def handle_entityref(s, n):
+		s.out += entdic.get(n + ';', "▢")
+	def handle_charref(s, c):
+		if c.startswith('x'):
+			s.out += chr(int(c[1:], 16))
+		else:
+			s.out += chr(int(c))
 
 def htmlrender(t):
 	"Transform HTML markup to printable text."
-	subs = (('<br>', ' {/ '), ('<br />', ' {/ '), ('</p>', ' {/ {/ '), ('<b>', '*'), ('</b>', '*'),
-		('<li>', ' {/ *'), ('</li>', ' {/ '),
-		('<strong>', '**'), ('</strong>', '**'), ('<em>', '&gt;'), ('</em>', '&lt;'),
-		('<u>', '_'), ('</u>', '_'), ('<i>', '~'), ('</i>', '~'),
-		('</blockquote>', ' {/ {/ '), ('<img', '[Image]<'),
-		('A href=', 'a href='), ('a  href=', 'a href='),
-		('<a class="reference"', '<a'),
-		('<a target="_blank"', '<a'),
-		('<a href="', ' {[ '), ('">', ' | '), ('</a>', ' ]} '))
-	for i in subs:
-		t = t.replace(i[0],         i[1])
-		t = t.replace(i[0].upper(), i[1])
-	t = re.sub("<.*?>", "", t)
-	t = ' '.join(t.split())
-	while '{/ {/ {/' in t:
-		t = t.replace('{/ {/ {/', '{/ {/')
-	return t
+	parser = MyHTMLParser()
+	parser.feed(t)
+	return parser.out
 
 def _find_next(t, i, p):
 	"Find index of next occurence of pattern p in t starting from index i. Return i if p is not found."
@@ -1396,7 +1411,7 @@ class TkApp:
 		s._insert_nav_bar(obj)
 		obj.insert(END, story.get_p_title() + "\n\n", "HEADLINE")
 		#print story.descr.encode("ascii", "replace") #########
-		textbody = entities(htmlrender(stripcontrol(story.descr))).split()
+		textbody = htmlrender(stripcontrol(story.descr)).split()
 		try:
 			search_terms = newsfeeds[s.sel_f].terms
 		except:
