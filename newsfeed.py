@@ -827,7 +827,7 @@ class MyHTMLParser(HTMLParser):
 	def handle_data(s, d):
 		s.out += d
 	def handle_entityref(s, n):
-		s.out += entdic.get(n + ';', "▢")
+		s.out += entdic.get(n + ';', '&' + n)
 	def handle_charref(s, c):
 		if c.startswith('x'):
 			s.out += chr(int(c[1:], 16))
