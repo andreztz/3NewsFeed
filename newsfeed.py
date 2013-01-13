@@ -787,7 +787,6 @@ class MyHTMLParser(HTMLParser):
 	"Parser for htmlrender function."
 	def __init__(s):
 		s.out = ''
-		s.islink = False
 		super().__init__(s)
 	def handle_starttag(s, t, a):
 		if t == 'a':
