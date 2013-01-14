@@ -82,13 +82,6 @@ if not dict:
 def _debuglog(message):
     if _debug: print(message)
 
-class URLGatekeeper:
-    def get(self, url):
-        if not self.can_fetch(url): return ''
-        return self.urlopener.open(url).read()
-
-_gatekeeper = URLGatekeeper()
-
 class BaseParser(sgmllib3.SGMLParser):
     def __init__(self, baseuri):
         sgmllib3.SGMLParser.__init__(self)
@@ -155,14 +148,16 @@ def isXMLRelatedLink(link):
 
 def couldBeFeedData(data):
     data = data.lower()
-    if data.count('<html'): return 0
-    return data.count('<rss') + data.count('<rdf') + data.count('<feed')
+    if '<html' in data: return 0
+    if '<rss' in data or '<rdf' in data or '<feed' in data:
+	    return 1
 
 def isFeed(uri):
     _debuglog('verifying that %s is a feed' % uri)
     protocol = urllib.parse.urlparse(uri)
     if protocol[0] not in ('http', 'https'): return 0
-    data = _gatekeeper.get(uri)
+    data = urllib.request.urlopen(uri).read()
+    data = str(data, encoding='utf8')
     return couldBeFeedData(data)
 
 def sortFeeds(feed1Info, feed2Info):
@@ -183,7 +178,8 @@ def getFeedsFromSyndic8(uri):
     
 def getFeeds(uri, querySyndic8=0):
     fulluri = makeFullURI(uri)
-    data = _gatekeeper.get(fulluri)
+    data = urllib.request.urlopen(fulluri).read()
+    data = str(data, encoding='utf8')
     # is this already a feed?
     if couldBeFeedData(data):
         return [fulluri]
@@ -222,6 +218,7 @@ def test():
     count = 0
     while 1:
         data = urllib.request.urlopen(uri).read()
+        data = str(data, encoding='utf8')
         if data.find('Atom autodiscovery test') == -1: break
         sys.stdout.write('.')
         count += 1
@@ -234,6 +231,7 @@ def test():
             failed.append(uri)
         else:
             atomdata = urllib.request.urlopen(links[0]).read()
+            atomdata = str(atomdata, encoding='utf8')
             if atomdata.find('<link rel="alternate"') == -1:
                 print('\n*** FAILED ***', uri, 'retrieved something that is not a feed')
                 failed.append(uri)
