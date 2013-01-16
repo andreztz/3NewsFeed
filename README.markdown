@@ -1,4 +1,4 @@
-## NewsFeed 2.14 Documentation
+## NewsFeed 3.0 Documentation
 
 ### Overview
 
@@ -31,12 +31,10 @@ into the Python module path, e.g. to
 `/usr/local/lib/python2.7/site\-packages/` or to where your PYTHONPATH
 environment variable points.
 
-  2. If you have GNOME installed, NewsFeed uses one of the sound files that
-come with GNOME to alert to new items. The file is also included
-("email.wav"). If you prefer another sound, set the environment variable
-NEWSFEED_SOUND or supply the full path in line 47 of `newsfeed.py`. Putting a
-nonexistent filename there disables sound notification. (*NOTE:* You need to
-have [Snack][2] installed to play sounds.)
+  2. By default, audio notifications are turned off. If you want them, set the
+environment variable NEWSFEED_SOUND to the full path of a sound file. (Setting
+it to "none" disables notification sounds.) *NOTE:* You need to have either
+[PyAudio][8] or [Snack][2] installed to play notification sounds.
 
   3. Copy at least `newsfeed` and, if you need them, also `add_feed.py`,
 `feed2opml.py`, `opml2feed.py`, `update_feeds.py`, and `dinos.py` to somewhere
@@ -401,4 +399,6 @@ maximum performace, delete searches when you do not need them anymore.
    [6]: #autodis
 
    [7]: http://www.openvms.org/
+
+   [8]: http://people.csail.mit.edu/hubert/pyaudio/
 
