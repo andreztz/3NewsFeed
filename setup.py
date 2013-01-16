@@ -8,6 +8,6 @@ setup(name="NewsFeed",
         author="Martin C. Doege",
         author_email="mdoege@compuserve.com",
 	url="http://home.arcor.de/mdoege/newsfeed/",
-        py_modules=["newsfeed", "rssfinder", "feedparser", "dlthreads", "play_wav"],
+        py_modules=["newsfeed", "rssfinder", "feedparser", "dlthreads", "play_wav", "sgmllib3"],
 	scripts=["newsfeed", "Start_NewsFeed.py", "add_feed.py", "feed2opml.py", "opml2feed.py", "dumpfeed.py", "update_feeds.py", "dinos.py", "bsize.py", "export_flagged.py", "export_unread.py"],
 	data_files=[('sounds', ['email.wav'])] )
