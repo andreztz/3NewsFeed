@@ -387,7 +387,8 @@ class NewsWire:
 
 	def _get_content_type(s):
 		"Get the URL content type, differentiate between HTML and XML."
-		if '.htm' in s.url: return 'text/html'
+		if '.htm' in s.url.split('/')[-1]:
+			return 'text/html'
 		try:
 			ugen = urllib.request.urlopen(s.url)
 			th = ugen.info().typeheader
