@@ -5,7 +5,7 @@ NewsFeed
 
 A Python/Tk RSS/RDF/Atom news aggregator. See included README.html for documentation.
 
-Martin Doege, 2013-01-13
+Martin Doege, 2013-12-18
 
 """
 
@@ -765,6 +765,19 @@ def title_caps(t):
 	for i in words: t = t.replace(" %s " % i.title(), " %s " % i)
 	return t
 
+def unemoji(t):
+	"Replace emoji characters with white square character as Tcl/Tk cannot display them"
+	# ( from http://stackoverflow.com/questions/13729638/how-can-i-filter-emoji-characters-from-my-input-so-i-can-save-in-mysql-5-5 )
+	try:
+		# UCS-4
+		highpoints = re.compile(u'[\U00010000-\U0010ffff]')
+	except re.error:
+		# UCS-2
+		highpoints = re.compile(u'[\uD800-\uDBFF][\uDC00-\uDFFF]')
+	# mytext = u'<some string containing 4-byte chars>'
+	t = highpoints.sub(u'\u25FD', t)
+	return t
+
 def stripcontrol(t, keep_newlines = False):
 	"Strip control characters from t."
 	if keep_newlines:
@@ -1409,9 +1422,9 @@ class TkApp:
 
 		obj.insert(END, story.date + "\n", "DATE")
 		s._insert_nav_bar(obj)
-		obj.insert(END, story.get_p_title() + "\n\n", "HEADLINE")
+		obj.insert(END, unemoji(story.get_p_title() + "\n\n"), "HEADLINE")
 		#print story.descr.encode("ascii", "replace") #########
-		textbody = htmlrender(stripcontrol(story.descr)).split()
+		textbody = unemoji(htmlrender(stripcontrol(story.descr))).split()
 		try:
 			search_terms = newsfeeds[s.sel_f].terms
 		except:
@@ -1484,11 +1497,11 @@ class TkApp:
 
 		obj.delete(0, END)
 		if not ilist: return
-
+		ilist2 = [unemoji(ll) for ll in ilist]
 		if obj is s.lb:
-			for i in range(len(ilist)): obj.insert(END, s._active(ilist[i], i, selnum, mark = 1))
+			for i in range(len(ilist2)): obj.insert(END, s._active(ilist2[i], i, selnum, mark = 1))
 		else:
-			for i in range(len(ilist)): obj.insert(END, s._active(ilist[i], i, selnum))
+			for i in range(len(ilist2)): obj.insert(END, s._active(ilist2[i], i, selnum))
 
 		if selnum:
 			if selnum < a or selnum > b: obj.see(selnum)
