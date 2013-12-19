@@ -1,0 +1,187 @@
+<h1>NewsFeed</h1>
+<h2>An aggregator for RSS/RDF/Atom feeds in Python/Tk</h2>
+<a href="https://github.com/mdoege/3NewsFeed"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+<span class="nav">
+<a href="#d">Downloads</a> | 
+<a href="#u">Usage</a> | 
+<a href="#f">Features</a> | 
+<a href="#c">Changes</a> |
+<a href="#l">License</a> | 
+<a href="#cm">Contact</a>
+</span>
+
+<h3><a name="a">Overview</a></h3>
+
+<p>NewsFeed is an <a href="http://en.wikipedia.org/wiki/Web_syndication">RSS/RDF/Atom</a> reader and aggregator for UNIX-like operating systems, such as Linux, Mac OS X, FreeBSD<b><sup><a href="#freebsd">*</a></sup></b>, or Windows. It is written in <a href="http://www.python.org/">Python</a> and uses the <a href="http://code.google.com/p/feedparser/">feedparser</a> module for downloading and parsing feeds.</p>
+
+<p>NewsFeed aims to be easy to setup and use and is something of a clone of <a href="http://netnewswireapp.com/">NetNewsWire</a> (of course it's not as Aqua-pretty on Linux, although it looks fairly decent on OS X). It only depends on <a href="http://www.tcl.tk">Tk</a>, no other libraries are required.</p>
+
+<p>Feed contents are not rendered as HTML as in other feed readers, therefore NewsFeed is quite fast because e.g. images are not displayed in descriptions. OPML feed lists can be imported and exported, and HTML pages can also be watched for changes, not just feeds. Other features include the ability to play a notification sound when new items have arrived and custom refresh intervals.</p>
+
+</div>
+
+<div><a href="newsfeed-arch.png"><img src="newsfeed-arch.jpg" border="0" alt="NewsFeed on Linux"></a>
+<a href="newsfeed-mac.png"><img src="newsfeed-mac.jpg" border="0" alt="NewsFeed on the Mac"></a>
+</div>
+
+</div>
+
+<br clear="all">
+
+<h3><a name="d">Downloads</a></h3>
+
+<div>
+<ul>
+<li>Latest version (Python 3.3+):
+<div class="current"><b><a href="http://home.arcor.de/mdoege/newsfeed/NewsFeed-3.0.tar.gz">NewsFeed v3.0</a>&nbsp;&nbsp;&nbsp;[96 KB] for Python 3.3 and later&nbsp;&nbsp;
+<small>(2013-01-16)</small></b> &mdash; <a href="https://github.com/mdoege/3NewsFeed">GitHub repo</a>
+</div></li>
+<li>Last Python 2.x version:
+<div class="older"><b><a href="http://home.arcor.de/mdoege/newsfeed/NewsFeed-2.16.tar.gz">NewsFeed v2.16</a>&nbsp;&nbsp;&nbsp;[106 KB] for Python 2.6 and 2.7&nbsp;<b><sup><a href="#backport">**</a></sup></b>&nbsp;
+<small>(2012-07-30)</small></b> &mdash; <a href="https://github.com/mdoege/NewsFeed">GitHub repo</a>
+</div></li>
+<li>
+Older, single-process version:
+<div class="older"><b><a href="http://home.arcor.de/mdoege/newsfeed/NewsFeed-2.13.1.tar.gz">NewsFeed v2.13.1</a>&nbsp;&nbsp;&nbsp;[93 KB] for Python 2.4 and 2.5&nbsp;
+<small>(2011-01-08)</small></b> &mdash; <a href="https://github.com/mdoege/NewsFeed-single">GitHub repo</a> 
+</div></li></ul>
+
+<h4><a href="README.html">Online documentation</a></h4>
+
+<h4><img width="16" height="16" src="feedicon.png" alt="RSS icon"><a href="feed://home.arcor.de/mdoege/newsfeed/welcome.rss">NewsFeed New Releases Information</a></h4>
+</div>
+
+<!-- Pollcode.com feature poll
+
+<div class="floatr">
+<form method="post" action="http://poll.pollcode.com/Znbm"><div class="bframe"><table border=0 width=150 cellspacing=0 cellpadding=4><tr><td colspan=2><font size=-1><b>Which additional features would you like to see?</b></font></td></tr><tr>
+
+<td width=5><input type=checkbox name=answer value="1"></td><td><font size=-1>Podcasting support</font></td></tr><tr>
+<td width=5><input type=checkbox name=answer value="2"></td><td><font size=-1>Syncing, e.g. to Google Reader</font></td></tr><tr>
+<td width=5><input type=checkbox name=answer value="3"></td><td><font size=-1>Social bookmarking support</font></td></tr><tr>
+<td width=5><input type=checkbox name=answer value="4"></td><td><font size=-1>Combined view</font></td></tr><tr>
+<td width=5><input type=checkbox name=answer value="5"></td><td><font size=-1>Other <i>(please leave a comment)</i></font></td></tr><tr>
+
+<td colspan=2><center><input type=submit value="Vote">&nbsp;&nbsp;<input type=submit name=view value="View"></center></td></tr><tr>
+<td colspan=2 align=right><hr width=70px><font size=-2>pollcode.com <a href="http://pollcode.com/">free polls</a></font></td></tr></table></div></form>
+</div>
+end of poll -->
+<br clear="all">
+
+<h3><a name="u">Basic Usage</a></h3>
+
+<p>NewsFeed provides keyboard shortcuts for all safe actions. Go through new items with the <b>Space</b> bar, mark all items in a feed as read with <b>M</b>, open an item in the browser with <b>O</b> (or <b>Return</b>), and exit the program with <b>Escape</b>. <span class="reason">The basic idea for the keyboard interface is (for a right-handed person) to have the index finger on the Space bar, the middle finger on <b>N</b> (to mark items), the ring finger on <b>M</b>, and the pinky on <b>Shift</b> (for doing Shift-N).</span></p>
+
+<p>Update intervals and caching times can be set on a per-feed basis. Autodiscovery of feeds is supported. A helper script for dealing with feed://-URIs is provided. Searches are possible, with search results being shown in the feed list like a regular feed and they are also updated live. This is a good way to look group topics from different feeeds. Use "Unsubscribe" to delete a search, just as you would remove a normal feed.</p>
+
+<p>A nice browser for use with NewsFeed is <a href="http://www.dillo.org/">Dillo</a>, as it starts up pretty much instantaneously. Just set your BROWSER environment variable accordingly. Using a different browser from your regular one has the advantage that your browsing history in your main browser is not touched. NewsFeed also has its own history feed (called <b>RECENTLY VISITED</b>) that contains all items that you opened in the browser so you can easily find an article again.</p>
+
+<p>Finally, <a href="http://people.csail.mit.edu/hubert/pyaudio/">PyAudio</a> or <a href="http://www.speech.kth.se/snack/">Snack</a> can play audio notifications when new items are available, but this is strictly optional.</p>
+
+<p align="center"><b>Please see the <a href="README.html">documentation</a> for more information.</b></p>
+
+<h3><a name="f">Features, Benefits (and possible Downsides)</a></h3>
+
+<p><b>Pros:</b></p>
+<ul>
+ <li>No installation required.</li>
+ <li>Easy to sync state between different machines, independent of machine architecture.</li>
+ <li>Keyboard shortcuts for all <i>safe</i> functions.</li>
+ <li>Live searches in the vein of smart playlists in <a href="http://www.apple.com/itunes/">iTunes</a>.</li>
+ <li>OPML import and export of subscriptions.</li>
+ <li>Simple HTML rendering (i.e. no annoying color schemes, text always of readable size, etc.).</li>
+ <li>Adjustable font size as in <a href="http://www.apple.com/safari/">Safari</a>.</li>
+ <li>Stable &mdash; no crashes or core dumps, ever.</li>
+ <li>Browser-like back button.</li>
+ <li>Can be run from a USB flash drive.</li>
+ <li>Can watch regular web pages for changes.</li>
+ <li>Items can be marked as important (these items will not expire).</li>
+ <li>Refresh intervals can be made as short as desired, e.g. every ten or twenty seconds.</li>
+ <li>Handles RSS 2.0 enclosures.</li>
+ <li>Easy export, for example to mail clients like <a href="http://kmail.kde.org/">KMail</a> or other programs that have command line options for grabbing content from a file.</li>
+ <li>Remembers its window position and size. (Not such a biggie, but far too many programs still don't do it.)</li>
+ <li>Works tranparently with proxies, thanks to Python's <a href="http://www.python.org/doc/current/lib/module-urllib.html">urllib</a> module.</li>
+ <li>Tk GUI is pretty fast.</li>
+ <li>Console support: If you hate GUIs or need to check your news via SSH, there is also a basic console interface. (Start NewsFeed with <tt>newsfeed --nogui</tt> to get it. See <tt>update_feeds.py</tt> for a way of updating feeds from e.g. a cron job.)</li>
+</ul>
+
+<p><b>Cons (<span class="reason">and some reasons why they may not amount to much</span>):</b></p>
+<ul>
+ <li>May be sluggish in GUI behavior when updating feeds. <span class="reason">&mdash;In practice, this is not such a biggie, as you can simply hit <b>Escape</b> (or alternatively, click the "X") to stop an update in progress if it inconveniences you.</span></li>
+ <li>No folders in feed list. <span class="reason">&mdash;Arranging the feeds in the feed list in such a way that similar topics come after each is often enough to emulate the benefits of folders.</span></li>
+ <li>Simple HTML rendering (i.e. no images, some tags are not supported). <span class="reason">&mdash;Most feeds outside of photoblogs or comic strip feeds do not rely on images or complex HTML markup too heavily.</span></li>
+ <li>Python as a byte-compiled language does require a fairly modern processor and enough RAM to run satisfactorily. In other words, if you are still running a Pentium-133, don't bother. <span class="reason">&mdash;On the other hand, if you set the caching time for items low enough so that NewsFeed doesn't have to deal with tens of thousands of articles, the program can be quite snappy.</span></li>
+ <li>Tk widgets tend to look a little dated, depending on the version of Tk used, and don't offer niceties such as drag and drop or line-dependent coloring in lists. <span class="reason">&mdash;Tk is time-proven and what it lacks in eye candy factor, it makes good with reliability and responsiveness.</span></li>
+</ul>
+
+<h3>Why Python?</h3>
+<p>Scripting languages in general make it easy to quickly adapt a program to one's needs. Just open the script in an editor, edit, save. I wish I could modify other programs on my desktop like that!</p>
+
+<p>What sets Python apart from other scripting languages like <a href="http://www.perl.com/">Perl</a> is that its syntax is very easy to read and that it includes a lot of useful modules in its standard distribution, as opposed to Perl, which relies heavily on <a href="http://www.cpan.org/">CPAN</a>.</p>
+
+<p>Python also cleverly integrates some the greatest features from even more powerful languages like <a href="http://www.lisp.org/">Common Lisp</a>, <a href="http://www.smalltalk.org/">Smalltalk</a>, or <a href="http://www.haskell.org/">Haskell</a>, making it easy to use concepts like object-orientation, functional constructs, or exceptions, all with a minimal, easy-to-learn syntax. This mix-and-match approach in Python is something I find very refreshing.</p>
+
+<h3><a name="c">Version History</a></h3>
+
+<h4>v3.0 (2013-01-16)</h4>
+
+<blockquote>
+
+<p>NewsFeed now runs on Python 3.3 exclusively; Python 2.x is no longer supported by the latest version. (NewsFeed 2.16 is still available for Python 2 users.)</p>
+
+<p>If you are upgrading from NewsFeed 2.x, it is recommended to back up your <tt>.newsfeed</tt> subscriptions file first. (Or at least run <tt>feed2opml.py</tt> to export your subscriptions list.)</p>
+
+</blockquote>
+
+<h4>v2.16 (2012-07-30)</h4>
+
+<blockquote>
+
+<p>Support for playing audio notifications via <a href="http://people.csail.mit.edu/hubert/pyaudio/">PyAudio</a> and command line audio players has been added. Previously, this feature was TkSnack-only.</p>
+
+</blockquote>
+
+<h4>v2.15 (2012-06-05)</h4>
+
+<blockquote>
+
+<p>Upgraded to Feedparser 5.1.2, converted README to Markdown, improve searches, especially a long-standing bug where "Next Unread" would jump to the middle of a search feed instead of the beginning.</p>
+
+</blockquote>
+
+<h5><a href="history.html">More&hellip;</a></h5>
+
+<h3>Requirements</h3>
+
+<ul>
+<li>Python 3.3 or later for the current NewsFeed version
+<ul>
+  <li>Python 2.4 for NewsFeed 2.13 or earlier</li>
+</ul>
+</li>
+<li>Tk 8.0 or later </li>
+<li>Tkinter</li>
+<li>PyAudio, TkSnack, or a suitable command line audio player (only needed if you want audio notifications)</li>
+</ul>
+
+<p>Please note that while Python and Tk are often installed by default under Linux, Tkinter is sometimes a separate package. Try <tt>import Tkinter</tt> in Python to see if Tk and Tkinter are properly installed.</p>
+
+<h3><a name="l">License</a></h3>
+
+<p>This software is provided under the <a href="http://www.gnu.org/copyleft/gpl.html">GPL</a>.</p>
+
+<h3><a name="notes">Notes</a></h3>
+
+<p><a name="freebsd"></a><b><sup><u>*</u></sup></b>Some versions of Python on FreeBSD may produce an error message when using the multiprocessing version (<tt>"This platform lacks a functioning sem_open"</tt>). You might have to recompile Python and make sure it has semaphore support as described on <a href="http://www.velocityreviews.com/forums/t717985-multiprocessing-on-freebsd.html">this forum page</a>.</p>
+
+<p><a name="backport"></a><b><sup><u>**</u></sup></b>If you happen to have the <a href="http://pypi.python.org/pypi/multiprocessing/">backported multiprocessing module</a> installed, the latest version might also work on Python 2.4 and 2.5. <tt>assert sys.version >= '2.6'</tt> in <tt>newsfeed.py</tt> must be commented out then.</p>
+
+<h3>Related Projects</h3>
+
+<ul>
+<li><a href="../rss-planet/">RSS-Planet</a>, a newsmapper for xplanet / OSXplanet</li>
+</ul>
+
+<h3><a name="cm">Bug reports and feature requests</a></h3>
+
+<p>Send comments to <a href="mailto:mdoege@compuserve.com?subject=NewsFeed">Martin C. Doege</a></p>

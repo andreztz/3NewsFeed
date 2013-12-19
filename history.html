@@ -1,0 +1,320 @@
+<h3><a name="c">NewsFeed Version History</a></h3>
+
+<h4>v2.13.1 (2011-01-08)</h4>
+
+<blockquote>
+
+<p>Added manual offline mode from v2.14 to the single-process version too.</p>
+
+</blockquote>
+
+<h4>v2.14 update (2011-01-03)</h4>
+
+<blockquote>
+
+<p>Fixed some minor annoyances related to feed auto-discovery that were due to the new multiprocessing setup. Also, this update to 2.14 should work on Windows again. If you are using yesterday's version, you may want to download the update (same filename as before). Just compare the MD5 checksum for the archive file if you are in doubt which version you have.</p>
+
+</blockquote>
+
+<h4>v2.14 (2011-01-02)</h4>
+
+<blockquote>
+
+<p>Downloading and parsing of feeds is now done by child processes, improving GUI performance during updates. This uses Python's new <a href="http://docs.python.org/library/multiprocessing.html">multiprocessing module</a>, so Python 2.6 or later is required.</p>
+
+<p>This release also introduces toggling offline mode manually with <b>o</b> to suppress automatic updates, a feature suggested on the <a href="http://freshmeat.net/projects/newsfeed">Freshmeat project page</a>. Note that you can still update manually when this offline mode is enabled.</p>
+
+</blockquote>
+
+<h4>v2.13 (2011-01-01)</h4>
+
+<blockquote>
+
+<p>Features a new <a href="newsfeed-mac.png">widescreen view</a> (toggled with keyboard shortcut <b>w</b>) à la NetNewsWire.</p>
+
+</blockquote>
+
+<h4>v2.12 (2009-06-17)</h4>
+
+<blockquote>
+
+<p>Upgraded to the latest version of FeedParser (4.1) to address problems with certain Atom feeds.</p>
+
+</blockquote>
+
+<h4>v2.11 (2008-11-28)</h4>
+
+<blockquote>
+
+<p>This release features significantly better performance for searches, as well as highlighting of the search terms in the results.</p>
+
+</blockquote>
+
+<h4>v2.10 (2008-08-11)</h4>
+
+<blockquote>
+
+<p>Added a command line option for the console interface (<tt>--nogui</tt>) and some other minor improvements.</p>
+
+</blockquote>
+
+<h4>v2.9.1 (2008-03-01)</h4>
+
+<blockquote>
+
+<p>A problem related to Unicode characters in certain feeds was fixed.</p>
+
+</blockquote>
+
+<h4>v2.9 (2007-12-13)</h4>
+
+<blockquote>
+
+<p>This release fixes a problem with HTML rendering and adds another utility, <tt>bsize.py</tt>, which prints the size (in bytes) each feed occupies in the NewsFeed cache.</p>
+
+<p>The default font sizes are now defined at the beginning of <tt>newsfeed.py</tt>, to make changing them easier.</p>
+
+</blockquote>
+
+<h4>v2.8 (2007-04-21)</h4>
+
+<blockquote>
+
+<p>Some minor enhancements (for example for dealing with feeds that have HTML in their titles or no titles at all) and the removal of a bug where <tt>dinos.py</tt> would crash if there was an empty feed in the list.</p>
+
+</blockquote>
+
+<h4>v2.7 (2006-05-27)</h4>
+
+<blockquote>
+
+<p>NewsFeed can now also watch regular web pages for changes. This works by simply entering the URL of the page into the "RSS:" field in the Subscription Info box. The page is downloaded regularly and if new content appears, a new item with the additional content is generated. This works best for pages with relatively simple HTML markup and is only recommended for sites without RSS feeds, as the bandwidth usage is a lot higher than that of a regular RSS subscription.</p>
+
+<p>There are also two new helper scripts, <tt>export_flagged.py</tt> and <tt>export_unread.py</tt> that export flagged or unread items to an HTML page (written to standard output).</p>
+
+</blockquote>
+
+
+<h4>v2.6.1 (2006-01-19)</h4>
+
+<blockquote>
+
+<p>An issue with v2.6.0 was discovered: My sample <tt>newsfeed_defaults.py</tt> was included even though it should not have been, which caused problems. Fix: Either comment out the definitions in <tt>newsfeed_defaults.py</tt> or download the new version of NewsFeed without that file.</p>
+
+</blockquote>
+
+
+<h4>v2.6 (2006-01-18)</h4>
+
+<blockquote>
+
+<p>This release introduces an optional new <a href="README.html#exc">extra configuration file</a>, which among other things is useful for installing NewsFeed onto a USB flash drive.</p>
+
+</blockquote>
+
+<h4>v2.5 (2005-09-03)</h4>
+
+<blockquote>
+
+<p>This release fixes a problem with HTML bullet entities (<tt>&amp;bull;</tt>).</p>
+
+</blockquote>
+
+<h4>v2.4 (2005-08-14)</h4>
+
+<blockquote>
+
+<p>NewsFeed now features a button to open the <a href="http://www.talkdigger.com/">Talk Digger</a> page for an item, right next to the export button. As Talk Digger is ad-supported, this new feature is optional and can easily be disabled in line 80 of <tt>newsfeed.py</tt>.</p>
+
+</blockquote>
+
+<h4>v2.3 (2005-06-23)</h4>
+
+<blockquote>
+
+<p>By popular demand: Custom refresh intervals, especially ones shorter than the previous minimum of five minutes. This is implemented as a new item in the refresh interval popup menu in the subscription info box, "Custom". The number of minutes this interval corresponds to is set on line 72 of <tt>newsfeed.py</tt> in the variable <tt>custom_interval</tt>. By default this is set to .333, i.e. about 20 seconds.</p>
+
+</blockquote>
+
+<h4>v2.2 (2005-06-11)</h4>
+
+<blockquote>
+
+<p>Support for Unicode characters specified as decimal character codes, such as <tt>&amp;#8212;</tt>, which were previously simply replaced with ASCII characters, has been improved.</p>
+
+<p>The is now an <b>export</b> button in the description pane, which can be used for things like printing the current item, creating a new email that includes the item title and description, or starting a new weblog post containing the item.</p>
+
+<p>What program is called when export is pressed is configured in lines 55 to 62 in <tt>newsfeed.py</tt>, where the variable <tt>export_application</tt> is defined. Simple template substitution is used, where <tt>title</tt> is the story title and <tt>description_file</tt> is the path to a file containing the story as you see it in the description pane (minus the toolbar).</p>
+
+<p>To deal with problems when Unicode characters are printed to the console, a new variable is introduced, <tt>console_encoding</tt>. The encoding specified here (e.g. "latin-1", "utf-8", etc.) is used when printing to the terminal or exporting items to an external program. Ideally, a correct encoding is already set for all Python programs in <tt>sys.getdefaultencoding()</tt>. However, this is often set to "ascii" even on systems that use "latin-1", so the encoding used by NewsFeed can be specified here separately, with "latin-1" being the default when there is not global setting other than "ascii".</p>
+
+<p>Finally, <tt>dumpfeed.py</tt> is a new script for exporting all stories in a channel to standard output. For example, <tt>dumpfeed.py 'cnn top stories'</tt> does this for the feed which has a name matching the argument (match is not case-sensitive).</p>
+
+</blockquote>
+
+<h4>v2.1 (2005-03-24)</h4>
+
+<blockquote>
+
+<p>By popular demand, NewsFeed now pops up a confirmation dialog when you unsubscribe from a channel. Of course there is also a checkbox to deactivate this dialog for the current session. If you want to permanently disable it, set <tt>ask_before_deletion = False</tt> on line 60 of <tt>newsfeed.py</tt>.</p>
+
+</blockquote>
+
+<h4>v2.0 (2005-02-06)</h4>
+
+<blockquote>
+
+<!-- Freshmeat: NewsFeed is now Unicode-aware and supports feeds in Atom format as well as enclosures. -->
+
+<p><a href="http://www.atomenabled.org">Atom</a> feeds are now supported, thanks to an upgrade of the included version of Mark Pilgrim's feed parser to v3.3.</p>
+
+<p>The new feed parser returns content as unicode strings. Therefore, character encodings other than ASCII or Latin-1 should now be supported, e.g. feeds in Greek or feeds encoded in UTF-16 should work. Results may vary somewhat depending on the fonts installed on your system and your Tk version, which generally has to be 8.1 or above for Unicode support.</p>
+
+<p>There are also three new environment variables, <tt>NEWSFEED_SOUND</tt> (sound file for alerts), <tt>BROWSER_NEW</tt> (should links be opened in a new browser window? &mdash; defaults to "yes"), and <tt>MEDIA_PLAYER</tt> (media player or download manager for handling enclosures) to control program behavior without changing the source code.</p>
+
+<p>Enclosures are displayed as hyperlinks with information about their type and size. Left-clicking on the link opens them in the <tt>MEDIA_PLAYER</tt>, while middle-clicking opens them in the default web browser.</p>
+
+<p>This version represents a major upgrade and therefore <b>it is strongly suggested for users of older versions to do a backup of their <tt>.newsfeed</tt> file before upgrading to the new version</b>. Should unforeseen problems arise, one can then easily revert to the previous version of NewsFeed.</p>
+
+<p>The first time NewsFeed 2.0 updates your feeds, it may happen that previously downloaded items are fetched again because their checksums have changed. If this is a problem, use the catch up hot key (Shift-C) that marks all items as read.</p>
+
+</blockquote>
+
+<h4>v1.9.2 (2004-11-18)</h4>
+
+<blockquote>
+
+<p>Another mini-update. This one fixes a bug where malformed HTML in a feed (e.g. <a href="http://www.lockergnome.com/">Lockergnome</a>) could throw NewsFeed into an infinite loop. <i>Eeep!</i> I am beginning to understand why writing <a href="http://www.apple.com/safari/">a</a> <a href="http://www.konqueror.org/">decent</a> <a href="http://www.mozilla.org/products/firefox/">web</a> <a href="http://www.opera.com/">browser</a> that deals with all the broken HTML out there is such a daunting task. Not that the minimal bit of HTML-mangling NewsFeed performs right now comes even close to making it a full-blown browser in any way&hellip;</p>
+
+</blockquote>
+
+<h4>v1.9.1 (2004-11-16)</h4>
+
+<blockquote>
+
+<p>On Windows, renaming a file does not overwrite an existing file (as oppposed to the behavior under Unix). To get the file versioning to work correctly under Windows, the appropriate code in NewsFeed had to be changed somewhat to take that into account.</p>
+
+<p>As always for minor revisions, the version number of the file and inside the distribution stays at 1.9.</p>
+
+</blockquote>
+
+<h4>v1.9 (2004-11-12)</h4>
+
+<blockquote>
+
+<p>This release adds a script called <tt>dinos.py</tt> for finding dinosaurs, i.e. feeds that have not been updated in a long time. The default is to look for feeds for which no new item was downloaded in the last ten days, but you can also supply a different cutoff value on the commandline. The list is sorted so that the oldest feeds appear at the top of the list.</p>
+
+<p>A rendering problem that surfaced when non-matching hyperlink tags were present in the feed was corrected. Finally, a problem with the configuration file on platforms that need a special 'binary' flag on files, such as some versions of Windows, was fixed.</p>
+
+</blockquote>
+
+<h4>v1.8 (2004-09-22)</h4>
+
+<blockquote>
+
+<p>The toolbar in the item content pane now has five buttons, with an order similar to the toolbar in Apple's <a href="http://www.apple.com/safari/">Safari</a> web browser:</p>
+
+<center><p><img src="five-in-row.png" alt="The new toolbar buttons" /></p></center>
+
+<p>The first two new buttons are "smaller" and "larger" for adjusting the font size used for the item headline and item description text. The corresponding hotkeys are <b>-</b> and <b>+</b>, respectively.</p>
+
+<p>The fifth button is for marking items as important, basically analogous to using bookmarks in a web browser. This "mark" button is a toggle switch that lights up red when an item is flagged and stays black when it is not. In the list of subject lines, marked items are prepended with "!!!".</p>
+
+<p>The hotkey for marking/unmarking is <b>n</b>, mainly because the key is situated conveniently next to the <b>m</b> and <b>Space</b> keys and is therefore easy to reach when going through new items.</p>
+
+<p>Marked items never expire on their own and also appear in a special feed called "IMPORTANT ITEMS", which is by default at the very end of the feed list. You can use the hotkey <b>N</b> (i.e.  <b>Shift</b>-<b>n</b>) to jump to this feed.</p>
+
+<p>Obviously, if you unmark an item in the "IMPORTANT ITEMS" feed, it will instantly disappear from that feed and the next item in the list will be selected, so be careful not to unmark more than you meant to.</p>
+
+</blockquote>
+
+<h4>v1.7 (2004-09-15)</h4>
+
+<blockquote>
+<img src="forward_backward.png" align="left" alt="New Foward/Backward butttons"/>
+<p>The most visible additions in this version are the browser-style Forward/Back buttons in the item content pane (see left). This is useful if you go through new items too fast and have skipped something interesting on the way. Now you can simply go back.</p>
+
+<p>The keyboard shortcuts for moving forward and back are <b>&gt;</b> and <b>&lt;</b>, or alternatively <b>]</b> and <b>[</b>.</p>
+
+<p>Pressing <b>C</b> (as in <b>Shift</b>-<b>c</b>) triggers the new catch up function which marks all new items in all channels as read, useful if you want to have a clean slate.</p>
+
+<p>Also, the info and search windows can now be dismissed by pressing the <b>Escape</b> key. Finally, the "Mark All As Read" and "Next Unread" buttons are grayed out if there is nothing to do.</p>
+</blockquote>
+
+<h4>v1.6 (2004-09-08)</h4>
+
+<blockquote>
+<p>This version introduces <a href="README.html#recov">automatic versioning and crash recovery of the configuration/cache file</a>. This is primarily meant to cover the rare event of an OS crash while NewsFeed is writing to its config file.</p>
+
+<p>There are also some usability enhancements, for example pressing <b>v</b> opens the history feed now, while <b>r</b> only updates the currently selected feed. (The old function of <b>r</b>, reloading all feeds, has been relegated to <b>R</b>, i.e. <b>Shift</b>-<b>r</b>).</p>
+
+<p>When the feed URL in the edit box is changed, the feed refreshes after saving the information.</p>
+</blockquote>
+
+<h4>v1.5.2 (2004-08-14)</h4>
+
+<blockquote>
+<p>Some more fiddling with the auto-update settings, basically only of interest to notebook users. I also increased the time between the start of the program and the first update, because sometimes the GUI was not fully drawn when the update started, which looked pretty ugly.</p>
+
+<p>As with v1.5.1, the version number in the distribution remains v1.5.</p>
+</blockquote>
+
+<h4>v1.5.1 (2004-08-13)</h4>
+
+<blockquote>
+<p>Just a few small fixes to the OPML export script, which had some problems and produced output that did not work in more strictly-checking tools such as <a href="http://www.fondantfancies.com/shrook/">Shrook</a>.</p>
+
+<p>I couldn't be bothered to increase the version number in the distribution and just replaced the download for v1.5 with the new file. If you still have the old version, please download it again.</p>
+</blockquote>
+
+<h4>v1.5 (2004-08-12)</h4>
+
+<blockquote>
+<p>The mouse pointer is now hidden during keyboard navigation and reappears when the mouse is moved.</p>
+
+<p>Before an automatic update of feeds takes place, Internet connectivity is tested. This is useful, e.g. for Wi-Fi-enabled notebook computers that take a few seconds to establish an Internet connection after they are woken up. Previously, NewsFeed might already have been in the middle of an update when the connection finally came up.</p>
+<p><tt>opml2feed.py</tt> now only adds feeds that are not already in the database, making it harmless to add the same OPML file twice.</p>
+
+<p><tt>update_feeds.py</tt> stays silent now unless an error occurs, but has acquired a commandline parameter ("-v") for more verbose output.</p>
+<p>Finally, feed name changes are propagated to the searches as well. Just save the feed information if the old name erroneously still shows up in the searches.</p>
+</blockquote>
+
+
+<h4>v1.4 (2004-05-20)</h4>
+
+<blockquote>
+<p>NewsFeed now includes a script (<tt>update_feeds.py</tt>) to update feeds from the command line, e.g. from a cron job. This can be used to make sure no articles are skipped when the program is not running all the time. Also, Windows support is officially back. Please note, however, that <tt>add_feed.py</tt> does not work on Windows.</p>
+</blockquote>
+
+
+<h4>v1.3 (2004-05-11)</h4>
+
+<blockquote>
+<p>NewsFeed now includes a <a href="http://www.python.org/sigs/distutils-sig/doc/">distutils</a> <tt>setup.py</tt> file by popular demand. In theory, this simplifies installation to <tt>python setup.py install</tt>.</p>
+</blockquote>
+
+
+<h4>v1.2 (2004-03-14)</h4>
+
+<blockquote>
+<p>The program state is now saved automatically about every ten minutes. There is also a new feed ("Recently visited") that displays only the news items that were opened in the browser. The main program (<tt>newsfeed</tt>) is now only a short script, which imports <tt>newsfeed.py</tt> as a module, avoiding the duplication of having <tt>newsfeed.py</tt> in two places. Several minor bugfixes were also made, e.g. related to the audio notification.</p>
+</blockquote>
+
+
+<h4>v1.1 (2004-02-10)</h4>
+
+<blockquote>
+<p>Overall program performance is much better, particularly when updating feeds (thanks to conditional fetching of content) or manipulating them in the list. Also, searches are no longer updated each time you select them. Program startup is faster because binary pickling is used for data storage.</p>
+
+<p>The user interface has received some refinements like better highlighting and the ability to use the cursor keys for moving between feeds and items. The HTML rendering is improved, displaying working hyperlinks in the items description.</p>
+
+<p>It is now possible to add new feeds from an external program, such as a (properly configured) web browser&mdash;or the terminal. A helper script, <tt>add_feed.py</tt> accepts an URL at the commandline and adds it to the NewsFeed feed list. If NewsFeed is currently running, it will load the new feed right away, if it is not running, the feed will be processed the next time NewsFeed starts.</p>
+</blockquote>
+
+<h4>v1.0 (2004-02-03)</h4>
+
+<blockquote>
+<p>This is pretty much what I have been using for my personal news aggregation needs since May 2003, so it is apparently somewhat useful...</p>
+</blockquote>
+
+<h5><a href="index.html#c">Back</a></h5>

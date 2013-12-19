@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="0.91">
+<channel>
+<title>NewsFeed Releases</title>
+<link>http://home.arcor.de/mdoege/newsfeed/</link>
+<description>This feed is used for a welcome message and if you keep it, will inform you of new releases.</description>
+<language>en-us</language>
+
+<item>
+<title>Welcome to NewsFeed!</title>
+<description>
+&lt;p&gt;If you are looking for feeds to subscribe to, some of the following sites may be helpful:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.technorati.com/pop/blogs&quot;&gt;Technorati: Popular Blogs&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.syndic8.com/&quot;&gt;Syndic8&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://blogsearch.google.com/&quot;&gt;Google Blog Search&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://radio.weblogs.com/&quot;&gt;Radio UserLand Top 100&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+<link>http://home.arcor.de/mdoege/newsfeed/</link>
+</item>
+
+<item>
+<title>Current version is v3.0</title>
+<description>
+&lt;p&gt;A new release of NewsFeed is available. Please consider visiting the 
+&lt;a href=&quot;http://home.arcor.de/mdoege/newsfeed/&quot;&gt;NewsFeed homepage&lt;/a&gt;
+ to learn more and to upgrade to the latest version.&lt;/p&gt;
+</description>
+<link>http://home.arcor.de/mdoege/newsfeed/</link>
+</item>
+
+</channel>
+</rss>
