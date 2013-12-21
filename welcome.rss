@@ -2,7 +2,7 @@
 <rss version="0.91">
 <channel>
 <title>NewsFeed Releases</title>
-<link>http://home.arcor.de/mdoege/newsfeed/</link>
+<link>http://mdoege.github.io/3NewsFeed/</link>
 <description>This feed is used for a welcome message and if you keep it, will inform you of new releases.</description>
 <language>en-us</language>
 
@@ -18,17 +18,17 @@
 &lt;li&gt;&lt;a href=&quot;http://radio.weblogs.com/&quot;&gt;Radio UserLand Top 100&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
-<link>http://home.arcor.de/mdoege/newsfeed/</link>
+<link>http://mdoege.github.io/3NewsFeed/</link>
 </item>
 
 <item>
-<title>Current version is v3.0</title>
+<title>Current version is v3.1</title>
 <description>
 &lt;p&gt;A new release of NewsFeed is available. Please consider visiting the 
-&lt;a href=&quot;http://home.arcor.de/mdoege/newsfeed/&quot;&gt;NewsFeed homepage&lt;/a&gt;
+&lt;a href=&quot;http://mdoege.github.io/3NewsFeed/&quot;&gt;NewsFeed homepage&lt;/a&gt;
  to learn more and to upgrade to the latest version.&lt;/p&gt;
 </description>
-<link>http://home.arcor.de/mdoege/newsfeed/</link>
+<link>hhttp://mdoege.github.io/3NewsFeed/</link>
 </item>
 
 </channel>
