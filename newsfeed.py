@@ -1034,7 +1034,7 @@ class TkApp:
 
 		s.r1b = Listbox(s.f7, selectmode = SINGLE, yscrollcommand = s.r1b_scr.set)
 		for i in newsfeeds[0].content:
-			s.r1b.insert(END, i.get_title())
+			s.r1b.insert(END, unemoji(i.get_title()))
 		s.r1b.config(background = "#ffefaf", selectforeground = "white",
 							selectbackground = "#328bff")
 		s.r1b.pack(side = TOP, expand = 1, fill = BOTH)
