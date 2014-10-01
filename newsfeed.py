@@ -87,9 +87,6 @@ tp_background = '#fffbea'
 tps_foreground = 'white'
 tps_background = '#233a8e' 
 
-# Font scaling factor at startup for item description and headline text:
-fontscaling = 1.
-
 # Default font sizes (points):
 fontsize = {}
 fontsize['Headline']    = 24
@@ -683,6 +680,8 @@ def load_feeds():
 		newsfeeds = [Recently_visited()] + newsfeeds
 	if not [x for x in newsfeeds if isinstance(x, Marked_items)]:
 		newsfeeds += [Marked_items()]
+	if 'fontscaling' not in config.keys():
+		config['fontscaling'] = 1.
 
 def version_file(filename, num_revs):
 	"Perform a VMS-like versioning of file, keeping at most num_revs old copies."
@@ -1051,20 +1050,20 @@ class TkApp:
 
 	def larger_font(s, event = ""):
 		"Increase font size."
-		global fontscaling
+		global config
 
-		if fontscaling < 2.3: fontscaling += .2
-		if about_equal(fontscaling, 1.4) or about_equal(fontscaling, 1.8):
+		if config['fontscaling'] < 2.3: config['fontscaling'] += .2
+		if about_equal(config['fontscaling'], 1.4) or about_equal(config['fontscaling'], 1.8):
 			s.larger_font()
 			return
 		s.change_content(feed = s.sel_f, topic = s.sel_t)
 
 	def smaller_font(s, event = ""):
 		"Decrease font size."
-		global fontscaling
+		global config
 
-		if fontscaling > .7: fontscaling -= .2
-		if about_equal(fontscaling, 1.4) or about_equal(fontscaling, 1.8):
+		if config['fontscaling'] > .7: config['fontscaling'] -= .2
+		if about_equal(config['fontscaling'], 1.4) or about_equal(config['fontscaling'], 1.8):
 			s.smaller_font()
 			return
 		s.change_content(feed = s.sel_f, topic = s.sel_t)
@@ -1321,7 +1320,7 @@ class TkApp:
 
 	def _insert_nav_bar(s, obj):
 		"Insert the item-specific navigation toolbar."
-		global newsfeeds, fontscaling
+		global newsfeeds, config
 
 		obj.insert(END, " <<",           "NAV")
 		obj.insert(END, "  back  ",      "BNAV")
@@ -1340,9 +1339,9 @@ class TkApp:
 		obj.tag_bind("MNAV", "<ButtonRelease-2>", s.mark_unmark)
 		obj.tag_bind("SNAV", "<ButtonRelease-1>", s.smaller_font)
 		obj.tag_bind("ENAV", "<ButtonRelease-1>", s.export_item)
-		if about_equal(fontscaling, .6):  obj.tag_config("SNAV", foreground = "#aaaaaa")
+		if about_equal(config['fontscaling'], .6):  obj.tag_config("SNAV", foreground = "#aaaaaa")
 		else: obj.tag_config("SNAV", foreground = "black")
-		if about_equal(fontscaling, 2.4): obj.tag_config("LNAV", foreground = "#aaaaaa")
+		if about_equal(config['fontscaling'], 2.4): obj.tag_config("LNAV", foreground = "#aaaaaa")
 		else: obj.tag_config("LNAV", foreground = "black")
 		obj.tag_bind("LNAV", "<ButtonRelease-1>", s.larger_font)
 		obj.insert(END, "~",             "NAV")
@@ -1391,15 +1390,15 @@ class TkApp:
 			fontsize['Date']))
 		if newsfeeds[s.sel_f].content[s.sel_t].link_visited:
 			obj.tag_config("HEADLINE", foreground = "#9600b5", underline = 1,
-						font = ("Times", int(fontscaling * fontsize['Headline'])))
+						font = ("Times", int(config['fontscaling'] * fontsize['Headline'])))
 		else: obj.tag_config("HEADLINE", foreground = "blue", underline = 1,
-						font = ("Times", int(fontscaling * fontsize['Headline'])))
+						font = ("Times", int(config['fontscaling'] * fontsize['Headline'])))
 		obj.tag_bind("HEADLINE", "<ButtonRelease-1>", s.open)
 		obj.tag_bind("HEADLINE", "<ButtonRelease-2>", s.open)
 		obj.tag_bind("HEADLINE", "<Enter>", s._cursor_over_link)
 		obj.tag_bind("HEADLINE", "<Leave>", s._cursor_not_over_link)
 		obj.tag_config("DESCR", spacing2 = 5, font = ("Times", int(
-			fontscaling * fontsize['Description'])))
+			config['fontscaling'] * fontsize['Description'])))
 		obj.tag_config("URL", foreground = "#ff2600", justify = RIGHT, font = ("Courier",
 			fontsize['URL']))
 		
@@ -1459,7 +1458,7 @@ class TkApp:
 
 				obj.tag_config(mytag, foreground = "blue",
 						underline = 1, spacing2 = 5,
-						font = ("Times", int(fontscaling * fontsize['Description'])))
+						font = ("Times", int(config['fontscaling'] * fontsize['Description'])))
 				obj.tag_bind(mytag, "<ButtonRelease-1>", lambda x, link = link: open_url(link))
 				obj.tag_bind(mytag, "<ButtonRelease-2>", lambda x, link = link: open_url(link))
 				obj.tag_bind(mytag, "<Enter>", s._cursor_over_link)
@@ -1476,7 +1475,7 @@ class TkApp:
 			eurl  = story.enclosure[0].get('url',    'unknown')
 			obj.tag_config("ENC", foreground = "blue",
 					underline = 1, spacing2 = 5,
-					font = ("Times", int(fontscaling * fontsize['Description'])))
+					font = ("Times", int(config['fontscaling'] * fontsize['Description'])))
 			obj.tag_bind("ENC", "<ButtonRelease-1>", lambda x, link = eurl: open_enclosure(link))
 			obj.tag_bind("ENC", "<ButtonRelease-2>", lambda x, link = eurl: open_url(link))
 			obj.tag_bind("ENC", "<Enter>", s._cursor_over_link)
