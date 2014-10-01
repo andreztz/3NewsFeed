@@ -5,14 +5,14 @@ NewsFeed
 
 A Python/Tk RSS/RDF/Atom news aggregator. See included README.html for documentation.
 
-Martin Doege, 2013-12-18
+Martin Doege, 2014-10-01
 
 """
 
 __author__    = "Martin C. Doege (mdoege@compuserve.com)"
-__copyright__ = "Copyright 2004-2013, Martin C. Doege"
+__copyright__ = "Copyright 2004-2014, Martin C. Doege"
 __license__   = "GPL"
-__version__   = "3.1"
+__version__   = "3.3"
 
 from  tkinter import *
 import sys
@@ -1596,7 +1596,15 @@ class TkApp:
 
 	def open_home(s, event = ""):
 		"Open feed home page in browser."
-		try: open_url(newsfeeds[s.sel_f].homeurl)
+		try:
+			if not isinstance(newsfeeds[s.sel_f], SearchWire):
+				open_url(newsfeeds[s.sel_f].homeurl)
+			else:
+				theurl = ''
+				for x in newsfeeds:
+					if not isinstance(x, SearchWire) and x.name == newsfeeds[s.sel_f].content[s.sel_t].fromfeed:
+						theurl = x.homeurl
+				open_url(theurl)
 		except: pass
 
 	def refresh(s, event = ""):
