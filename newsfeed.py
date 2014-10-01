@@ -1322,7 +1322,7 @@ class TkApp:
 		"Insert the item-specific navigation toolbar."
 		global newsfeeds, config
 
-		obj.insert(END, " <<",           "NAV")
+		obj.insert(END, "",           "NAV")
 		obj.insert(END, "  back  ",      "BNAV")
 		obj.insert(END, "~",             "NAV")
 		obj.insert(END, "  forward    ", "FNAV")
@@ -1352,7 +1352,7 @@ class TkApp:
 		obj.insert(END, "    mark    ",    "MNAV")
 		obj.insert(END, "~",             "NAV")
 		obj.insert(END, "    export  ",  "ENAV")
-		obj.insert(END, ">>\n\n",        "NAV")
+		obj.insert(END, "\n\n",        "NAV")
 
 	def mark_unmark(s, event = ""):
 		"Toggle the marking status of an item and redraw."
