@@ -580,7 +580,11 @@ class SearchWire(NewsWire):
 				hash = gethash(t.title, t.descr)
 				s.headlines[hash] = oldheadlines.get(hash, s.u_time)
 		s.content = keepcontent + newcontent
+		s.sort_items()
 		return 0
+
+	def sort_items(s):
+		s.content.sort(key=lambda r: -_by_time_order(r))
 
 class Recently_visited(SearchWire):
 	"A class that shows the articles that were opened recently."
@@ -1227,7 +1231,7 @@ class TkApp:
 		    or isinstance(newsfeeds[feed], Recently_visited)
 		    or isinstance(newsfeeds[feed], Marked_items)):
 			s.sel_f = feed
-			newsfeeds[s.sel_f].content.sort(key=lambda r: -_by_time_order(r))
+			newsfeeds[s.sel_f].sort_items()
 		if topic == -2:
 			for n, q in enumerate(newsfeeds[feed].content):
 				if q.unread:
