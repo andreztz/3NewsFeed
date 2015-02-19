@@ -154,13 +154,12 @@ initial = [
   ("ScienceDaily",       "http://www.sciencedaily.com/newsfeed.xml",                               60, 10),
   ("Slashdot",           "http://slashdot.org/slashdot.rss"),
   ("MetaFilter",         "http://feeds.feedburner.com/Metafilter",                                 30,  3),
-  ("Freshmeat",          "http://freshmeat.net/index.atom",                                        15,  1),
   ("Food Consumer",      "http://www.foodconsumer.org/newsite/feed/index.1.rss",                   60, 10),
-  ("Python News",        "http://www.python.org/channews.rdf",                                     60, 30),
+  ("Python News",        "http://www.python.org/dev/peps/peps.rss",                                60, 30),
   ("CNN Top Stories",    "http://rss.cnn.com/rss/cnn_topstories.rss",                              15, 10),
   ("Project Gutenberg",  "http://www.gutenberg.org/feeds/today.rss",                               60, 30),
   ("Yahoo! Top Stories", "http://rss.news.yahoo.com/rss/topstories",                               15,  1),
-  ("BBC News",           "http://www.bbc.co.uk/syndication/feeds/news/ukfs_news/world/rss091.xml", 15, 10)
+  ("BBC News",           "http://feeds.bbci.co.uk/news/rss.xml",                                   15, 10)
 ]
 
 if use_threads:
@@ -862,8 +861,12 @@ class MyHTMLParser(HTMLParser):
 def htmlrender(t):
 	"Transform HTML markup to printable text."
 	parser = MyHTMLParser()
-	parser.feed(t)
-	return parser.out
+	try:
+		parser.feed(t)
+	except:
+		return t
+	else:
+		return parser.out
 
 def _find_next(t, i, p):
 	"Find index of next occurence of pattern p in t starting from index i. Return i if p is not found."
