@@ -5,12 +5,12 @@ NewsFeed
 
 A Python/Tk RSS/RDF/Atom news aggregator. See included README.html for documentation.
 
-Martin Doege, 2014-10-01
+Martin Doege, 2015-02-19
 
 """
 
 __author__    = "Martin C. Doege (mdoege@compuserve.com)"
-__copyright__ = "Copyright 2004-2014, Martin C. Doege"
+__copyright__ = "Copyright 2004-2015, Martin C. Doege"
 __license__   = "GPL"
 __version__   = "3.3"
 
@@ -27,7 +27,16 @@ from queue import Empty, Full
 from html.entities import html5 as entdic
 from html.parser import HTMLParser
 
-import feedparser, rssfinder, dlthreads, play_wav
+import feedparser, rssfinder, play_wav
+
+# Python multiprocessing ic combination with urllib is broken on OS X
+# and MP behaves differently on Windows, so it is only enabled on Linux and FreeBSD:
+if 'freebsd' in sys.platform or 'linux' in sys.platform:
+	use_threads = True
+else:
+	use_threads = False
+if use_threads:
+	import dlthreads
 
 ################################################################################################
 
@@ -44,7 +53,7 @@ sound = play_wav.Sound()
 media_player = os.getenv("MEDIA_PLAYER")
 if not media_player:
 	if 'freebsd' in sys.platform or 'linux' in sys.platform:
-		media_player = "noatun"		# A nice choice under KDE
+		media_player = "vlc"		# A nice choice under Linux
 	elif 'darwin' in sys.platform:
 		media_player = "open"		# Suggested for Mac OS X
 	else:
@@ -104,8 +113,6 @@ try:
 	from newsfeed_defaults import *
 except: pass
 
-
-
 ################################################################################################
 #  NO CHANGES SHOULD NORMALLY BE REQUIRED BELOW THIS LINE  #####################################
 ################################################################################################
@@ -156,7 +163,8 @@ initial = [
   ("BBC News",           "http://www.bbc.co.uk/syndication/feeds/news/ukfs_news/world/rss091.xml", 15, 10)
 ]
 
-dlthreads.start()
+if use_threads:
+	dlthreads.start()
 new_data = {}		# global hash for freshly-downloaded feed content
 
 class InternetConnectivity:
@@ -870,6 +878,28 @@ def gethash(*args):
 		if type(i) != type(""): h.update(i)
 		else: h.update(i.encode("utf-8", "replace"))
 	return h.hexdigest()
+
+def get_content_unicode(url):
+	"Get the URL content and convert to Unicode."
+	ugen = urllib.request.urlopen(url)
+	rawhtml = ugen.read()
+	content_type = 'iso-8859-1'
+	th = ugen.info().typeheader
+	if 'charset' in th:
+		content_type = th.split('=')[-1]
+	elif 'charset=' in rawhtml:
+		for x in rawhtml.splitlines(1):
+			try:
+				c = re.compile('charset=(.+)"').search(x).expand("\g<0>")
+				content_type = c.split('=')[-1][0:-1]
+			except: pass
+			else: break
+	try: rawhtml = rawhtml.decode(content_type)
+	except:
+		sys.stderr.write("*** Warning: Encoding %s not supported by Python, defaulting to iso-8859-1.\n"
+					% content_type)
+		rawhtml = rawhtml.decode('iso-8859-1')
+	return rawhtml
 
 def text_interface():
 	"Present the user with a simple textual interface to the RSS feeds."
@@ -1996,6 +2026,7 @@ class TkApp:
 			s.refresh_now = 2
 
 		# Second stage, do the actual downloading:
+		rr = ''
 		if s.refresh_feeds:
 			if s. b_refresh.cget("state") == "normal":
 				for b in s.b_refresh, s.b_unsub, s.b_up, s.b_dn:
@@ -2011,7 +2042,24 @@ class TkApp:
 					etag = cur.lastresult.get('etag', '')
 					lr = cur.lastresult.get('modified', '')
 				except: etag, lr = '', ''
-				try: dlthreads.urlq.put_nowait((cur.url_is_webpage(), (cur.url, etag, lr)))
+				try:
+					if use_threads:
+						dlthreads.urlq.put_nowait((cur.url_is_webpage(), (cur.url, etag, lr)))
+					else:
+						if cur.url_is_webpage():
+							try:
+								rr = get_content_unicode(cur.url)
+							except:
+								rr = "failed"
+						else:
+							try:
+								# Parse data, return a dictionary:
+								rr = feedparser.parse(cur.url, etag = etag, modified = lr)
+								rr['bozo_exception'] = ''
+							except:
+								raise
+								rr = "failed"
+						rr = (cur.url, rr)
 				except Full: pass
 				else: s.refresh_feeds.pop(0)
 
@@ -2025,21 +2073,23 @@ class TkApp:
 			s.num_done_feeds = 0
 			s.draw_bar(0)
 		try:
-			rr = dlthreads.urlr.get_nowait()
+			if use_threads:
+				rr = dlthreads.urlr.get_nowait()
 		except Empty:
 			pass
 		else:
-			s.num_done_feeds += 1
-			s.draw_bar(s.progress())
-			res_url, result = rr[0], rr[1]
-			for x in range(len(newsfeeds)):
-				try: nurl = newsfeeds[x].url
-				except: nurl = ''
-				if nurl == res_url:
-					if result and result != "failed":
-						newsfeeds[x].failed = False
-					else:
-						newsfeeds[x].failed = True
+			if rr:
+				s.num_done_feeds += 1
+				s.draw_bar(s.progress())
+				res_url, result = rr[0], rr[1]
+				for x in range(len(newsfeeds)):
+					try: nurl = newsfeeds[x].url
+					except: nurl = ''
+					if nurl == res_url:
+						if result and result != "failed":
+							newsfeeds[x].failed = False
+						else:
+							newsfeeds[x].failed = True
 		if result and result != "failed":
 			new_data[res_url] = result
 			for x in range(len(newsfeeds)):
