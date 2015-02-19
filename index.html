@@ -48,16 +48,16 @@
 
 <div>
 <ul>
-<li>Latest version (Python 3.3+; multiprocessing, works on Linux):
-<div class="current"><b><a href="NewsFeed-3.1.tar.gz">NewsFeed v3.1</a>&nbsp;&nbsp;&nbsp;[96 KB] for Python 3.3 and later&nbsp;&nbsp;
-<small>(2013-12-19)</small></b> &mdash; <a href="https://github.com/mdoege/3NewsFeed">GitHub repo</a>
+<li>Latest version (Python 3.3+; uses multiprocessing on Linux/FreeBSD, single-process on Windows and OS X):
+<div class="current"><b><a href="NewsFeed-3.3.tar.gz">NewsFeed v3.3</a>&nbsp;&nbsp;&nbsp;[99 KB] for Python 3.3 and later&nbsp;&nbsp;
+<small>(2015-02-19)</small></b> &mdash; <a href="https://github.com/mdoege/3NewsFeed">GitHub repo</a>
 </div></li>
 <li>Final Python 2.x version (multiprocessing):
 <div class="older"><b><a href="NewsFeed-2.16.tar.gz">NewsFeed v2.16</a>&nbsp;&nbsp;&nbsp;[106 KB] for Python 2.6 and 2.7&nbsp;<b><sup><a href="#backport">**</a></sup></b>&nbsp;
 <small>(2012-07-30)</small></b> &mdash; <a href="https://github.com/mdoege/NewsFeed">GitHub repo</a>
 </div></li>
 <li>
-Older Python 2 version (single-process; use this on Windows or OS X):
+Older Python 2 version (single-process):
 <div class="older"><b><a href="NewsFeed-2.13.1.tar.gz">NewsFeed v2.13.1</a>&nbsp;&nbsp;&nbsp;[93 KB] for Python 2.4&ndash;2.7&nbsp;
 <small>(2011-01-08)</small></b> &mdash; <a href="https://github.com/mdoege/NewsFeed-single">GitHub repo</a> 
 </div></li></ul>
@@ -110,13 +110,12 @@ end of poll -->
  <li>Stable &mdash; no crashes or core dumps, ever.</li>
  <li>Browser-like back button.</li>
  <li>Can be run from a USB flash drive.</li>
- <li>Can watch regular web pages for changes.</li>
  <li>Items can be marked as important (these items will not expire).</li>
  <li>Refresh intervals can be made as short as desired, e.g. every ten or twenty seconds.</li>
  <li>Handles RSS 2.0 enclosures.</li>
  <li>Easy export, for example to mail clients like <a href="http://kmail.kde.org/">KMail</a> or other programs that have command line options for grabbing content from a file.</li>
  <li>Remembers its window position and size. (Not such a biggie, but far too many programs still don't do it.)</li>
- <li>Works tranparently with proxies, thanks to Python's <a href="http://www.python.org/doc/current/lib/module-urllib.html">urllib</a> module.</li>
+ <li>Works tranparently with proxies, thanks to Python's urllib module.</li>
  <li>Tk GUI is pretty fast.</li>
  <li>Console support: If you hate GUIs or need to check your news via SSH, there is also a basic console interface. (Start NewsFeed with <tt>newsfeed --nogui</tt> to get it. See <tt>update_feeds.py</tt> for a way of updating feeds from e.g. a cron job.)</li>
 </ul>
@@ -138,6 +137,14 @@ end of poll -->
 <p>Python also cleverly integrates some the greatest features from even more powerful languages like <a href="http://www.lisp.org/">Common Lisp</a>, <a href="http://www.smalltalk.org/">Smalltalk</a>, or <a href="http://www.haskell.org/">Haskell</a>, making it easy to use concepts like object-orientation, functional constructs, or exceptions, all with a minimal, easy-to-learn syntax. This mix-and-match approach in Python is something I find very refreshing.</p>
 
 <h3><a name="c">Version History</a></h3>
+
+<h4>v3.3 (2015-02-19)</h4>
+
+<blockquote>
+
+<p>Python multiprocessing is now optional and only used on FreeBSD and Linux, but not on OS X and Windows. (On OS X in particular multiprocessing in combination with urllib as in NewsFeed was always a bit flaky, depending on the Python version.)</p>
+
+</blockquote>
 
 <h4>v3.1 (2013-12-19)</h4>
 
