@@ -142,7 +142,9 @@ end of poll -->
 
 <blockquote>
 
-<p>Python multiprocessing is now optional and only used on FreeBSD and Linux, but not on OS X and Windows. (On OS X in particular multiprocessing in combination with urllib as in NewsFeed was always a bit flaky, depending on the Python version.)</p>
+<p>NewsFeed now works on OS X and Windows again. Python multiprocessing (which was causing problems in combination with urllib) is now optional and only used on FreeBSD and Linux, but not on OS X and Windows. On OS X in particular multiprocessing support was always a bit flaky, depending on the Python version. And on Windows it probably never worked with NewsFeed at all.</p>
+
+<p>The font scaling setting is now also saved as a preference.</p>
 
 </blockquote>
 
