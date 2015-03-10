@@ -10,7 +10,7 @@ Martin Doege, 2015-02-19
 """
 
 __author__    = "Martin C. Doege (mdoege@compuserve.com)"
-__copyright__ = "Copyright 2004-2015, Martin C. Doege"
+__copyright__ = "Copyright 2003-2015, Martin C. Doege"
 __license__   = "GPL"
 __version__   = "3.3"
 
@@ -184,7 +184,7 @@ class InternetConnectivity:
 		if time.time() - s.lastchecked > delta or (
 				s.app_start and time.time() - s.lastchecked > 2):
 			s.lastchecked = time.time()
-			try: t = socket.gethostbyname(s.host)
+			try: t = socket.getaddrinfo(s.host, 'http')
 			except: s.status = False
 			else: s.status = True
 			s.app_start = False
