@@ -1000,7 +1000,7 @@ class TkApp:
 		s.lb = Listbox(f5, width = 24, selectmode = SINGLE, yscrollcommand = s.lb_scr.set)
 		for i in newsfeeds:
 			s.lb.insert(END, i.get_name())
-		s.lb.config(background = "#96c8ff", selectforeground = "white",
+		s.lb.config(foreground = "black", background = "#96c8ff", selectforeground = "white",
 							selectbackground = "#328bff")
 		s.lb.pack(side = TOP, expand = 1, fill = BOTH)
 		s.lb_scr.config(command = s.lb.yview)
@@ -1064,14 +1064,14 @@ class TkApp:
 		s.r11b = Listbox(s.f7, selectmode = SINGLE, width = date_width, yscrollcommand = s.r1b_scr.set)
 		for i in newsfeeds[0].content:
 			s.r11b.insert(END, i.date)
-		s.r11b.config(background = "#ffefaf", selectforeground = "white",
+		s.r11b.config(foreground = "black", background = "#ffefaf", selectforeground = "white",
 							selectbackground = "#328bff")
 		s.r11b.pack(side = RIGHT, expand = 0, fill = BOTH)
 
 		s.r1b = Listbox(s.f7, selectmode = SINGLE, yscrollcommand = s.r1b_scr.set)
 		for i in newsfeeds[0].content:
 			s.r1b.insert(END, unemoji(i.get_title()))
-		s.r1b.config(background = "#ffefaf", selectforeground = "white",
+		s.r1b.config(foreground = "black", background = "#ffefaf", selectforeground = "white",
 							selectbackground = "#328bff")
 		s.r1b.pack(side = TOP, expand = 1, fill = BOTH)
 		s.r1b_scr.config(command = s._yview)
