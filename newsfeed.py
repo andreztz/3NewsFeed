@@ -866,6 +866,8 @@ class MyHTMLParser(HTMLParser):
 
 def htmlrender(t):
 	"Transform HTML markup to printable text."
+	if '<' not in t:
+		return t
 	parser = MyHTMLParser()
 	try:
 		parser.feed(t)
