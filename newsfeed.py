@@ -298,10 +298,10 @@ class ContentItem:
 
 	def get_p_title(s):
 		"Return textbox title of item."
-		title = htmlrender(stripcontrol(s.title)).strip()
+		title = stripcontrol(s.title).strip()
 		title = re.sub("<.*?>", "", title)
 		if not title:
-			title = htmlrender(stripcontrol(s.descr))
+			title = stripcontrol(s.descr)
 			title = re.sub("<.*?>", "", title)
 			if len(title) > 80:
 				title = title[:80] + "..."
