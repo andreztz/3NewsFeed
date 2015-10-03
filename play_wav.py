@@ -59,7 +59,7 @@ class Sound:
 		data = wf.readframes(chunk)
 
 		# play stream
-		while data != '':
+		while data:
 			stream.write(data)
 			data = wf.readframes(chunk)
 
@@ -91,3 +91,10 @@ class Sound:
 		if media_player:
 			command = '%s "%s"' % (media_player, mediaFile)
 			os.system(command)
+
+if __name__ == "__main__":
+	sound = Sound()
+	sound.playFile("email.wav")
+
+
+

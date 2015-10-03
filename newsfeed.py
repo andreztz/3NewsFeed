@@ -48,11 +48,6 @@ soundfile = os.getenv("NEWSFEED_SOUND")
 if not soundfile:
 	soundfile = "/usr/share/newsfeed/sounds/email.wav"
 
-# Disable sound on Python 3.5 on Linux, it has some problems with PyAudio right now:
-if sys.version[:3] == '3.5' and 'linux' in sys.platform:
-	print("PyAudio is currently broken with Python 3.5 on Linux, disabling...")
-	soundfile = ""
-
 sound = play_wav.Sound()
 
 # Media player used for opening enclosures. A few suggestions for different systems:
