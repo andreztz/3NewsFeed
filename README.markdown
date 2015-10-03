@@ -1,4 +1,4 @@
-## NewsFeed 3.5 Documentation
+## NewsFeed 3.6 Documentation
 
 ### Overview
 
