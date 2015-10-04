@@ -1363,7 +1363,7 @@ class TkApp:
 		global newsfeeds, config
 
 		obj.insert(END, "",           "NAV")
-		obj.insert(END, "  back  ",      "BNAV")
+		obj.insert(END, " back  ",      "BNAV")
 		obj.insert(END, "~",             "NAV")
 		obj.insert(END, "  forward    ", "FNAV")
 		try: marked = newsfeeds[s.sel_f].content[s.sel_t].marked
@@ -1389,9 +1389,9 @@ class TkApp:
 		obj.insert(END, "~",             "NAV")
 		obj.insert(END, "  larger    ",  "LNAV")
 		obj.insert(END, "~",             "NAV")
-		obj.insert(END, "    mark    ",    "MNAV")
+		obj.insert(END, "   mark   ",    "MNAV")
 		obj.insert(END, "~",             "NAV")
-		obj.insert(END, "    export  ",  "ENAV")
+		obj.insert(END, "   export",  "ENAV")
 		obj.insert(END, "\n\n",        "NAV")
 
 	def mark_unmark(s, event = ""):
