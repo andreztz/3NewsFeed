@@ -5,7 +5,7 @@ NewsFeed
 
 A Python/Tk RSS/RDF/Atom news aggregator. See included README.html for documentation.
 
-Martin Doege, 2015-09-25
+Martin Doege, 2015-10-04
 
 """
 
@@ -28,6 +28,13 @@ from html.entities import html5 as entdic
 from html.parser import HTMLParser
 
 import feedparser, rssfinder, play_wav
+
+try:
+	from PIL import Image, ImageTk
+except:
+	print("PIL not found, images will not be displayed.")
+photos = {}
+show_images = False
 
 # Python multiprocessing ic combination with urllib is broken on OS X
 # and MP behaves differently on Windows, so it is only enabled on Linux and FreeBSD:
@@ -830,6 +837,9 @@ class MyHTMLParser(HTMLParser):
 			s.out += '~'
 		if t == 'img':
 			s.out += '[Image]'
+			for at in a:
+				if at[0] == 'src':
+					s.out += ' ' + at[1] + ' '
 		if t == 'blockquote':
 			s.out += ' {/ {/ '
 		if t == 'li':
@@ -969,6 +979,9 @@ class TkApp:
 		s.b_unsub.pack(side = LEFT)
 		s.b_search = Button(f3, text = "Search News", command = s.new_search)
 		s.b_search.pack(side = LEFT)
+		s.track_imbutton = IntVar()
+		Checkbutton(f3, text = "Load images",
+				variable = s.track_imbutton).pack(side = LEFT)
 
 		s.b_delall = Button(f4, text = "Delete All", command = s.delete_all_in_feed)
 		s.b_delall.pack(side = RIGHT)
@@ -1416,7 +1429,7 @@ class TkApp:
 
 	def _change_text(s, obj):
 		"Change textbox content."
-		global history, newsfeeds
+		global history, newsfeeds, photos
 
 		obj.config(state = NORMAL)
 		obj.delete(1.0, END)
@@ -1489,7 +1502,8 @@ class TkApp:
 		while i < len(textbody):
 			x = textbody[i]
 			if x == "{/": obj.insert(END, "\n", "DESCR")
-			elif x == "{[":
+			elif ((x == "{[" and show_images and "[Image]" not in textbody[i + 3]) or
+				(x == "{[" and not show_images)):
 				link = textbody[i + 1]
 				text = textbody[i + 3 : _find_next(textbody, i + 3, "]}")]
 				text = [x for x in text if x[0] != '{']
@@ -1507,6 +1521,30 @@ class TkApp:
 				obj.insert(END, ' '.join(text), mytag)
 				obj.insert(END, ' ', "DESCR")
 				i = _find_next(textbody, i + 3, "]}")
+			elif x == "[Image]" and show_images:
+				imurl = textbody[i+1]
+				if '.jpg' not in imurl and '.png' not in imurl and '.gif' not in imurl:
+					i += 1
+					break
+				pp = photos.get(imurl, None)
+				if pp:
+					obj.image_create(END, image = pp)
+				else:
+					try:
+						image = Image.open(urllib.request.urlopen(imurl))
+					except:
+						#print("BAD", imurl)
+						pass
+					else:
+						photo = ImageTk.PhotoImage(image)
+						photos[imurl] = photo
+						#print("GOOD", imurl)
+						obj.image_create(END, image = photo)
+				obj.insert(END, "\n", "DESCR")
+				i += 1
+			elif x == "[Image]" and not show_images:
+				obj.insert(END, "[IMAGE]\n", "DESCR")
+				i += 1
 			else: obj.insert(END, x + " ", "DESCR")
 			i += 1
 		if story.has_enclosure():
@@ -1996,7 +2034,7 @@ class TkApp:
 
 	def beat(s):
 		"Look if any updating of feeds is necessary."
-		global netchecker
+		global netchecker, show_images
 		cur = None
 
 		s.lb.xview_moveto(0.0)
@@ -2012,6 +2050,11 @@ class TkApp:
 		if len(s.r11b.curselection()) and int(s.r11b.curselection()[0]) != s.sel_t:
 			s.idle_since = time.time()
 			s.change_content(feed = s.sel_f, topic = s.r11b.curselection()[0])
+
+		# Check image loading checkbox
+		if (s.track_imbutton.get() > 0) != show_images:
+			show_images = not show_images
+			s.change_content(feed = s.sel_f, topic = s.sel_t)
 
 		# Look for changes in the number of empty feeds:
 		num_empty_feeds = len([x for x in newsfeeds if (x.content == [] and not isinstance(x, SearchWire))])
