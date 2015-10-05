@@ -5,14 +5,14 @@ NewsFeed
 
 A Python/Tk RSS/RDF/Atom news aggregator. See included README.html for documentation.
 
-Martin Doege, 2015-10-04
+Martin Doege, 2015-10-05
 
 """
 
 __author__    = "Martin C. Doege (mdoege@compuserve.com)"
 __copyright__ = "Copyright 2003-2015, Martin C. Doege"
 __license__   = "GPL"
-__version__   = "3.6"
+__version__   = "3.7"
 
 from  tkinter import *
 import sys
@@ -32,7 +32,7 @@ import feedparser, rssfinder, play_wav
 try:
 	from PIL import Image, ImageTk
 except:
-	print("PIL not found, images will not be displayed.")
+	print("Pillow not found; images will not be displayed.")
 photos = {}
 show_images = False
 
@@ -980,7 +980,7 @@ class TkApp:
 		s.b_search = Button(f3, text = "Search News", command = s.new_search)
 		s.b_search.pack(side = LEFT)
 		s.track_imbutton = IntVar()
-		Checkbutton(f3, text = "Load images",
+		Checkbutton(f3, text = "Load Images",
 				variable = s.track_imbutton).pack(side = LEFT)
 
 		s.b_delall = Button(f4, text = "Delete All", command = s.delete_all_in_feed)
@@ -1523,9 +1523,6 @@ class TkApp:
 				i = _find_next(textbody, i + 3, "]}")
 			elif x == "[Image]" and show_images:
 				imurl = textbody[i+1]
-				if '.jpg' not in imurl and '.png' not in imurl and '.gif' not in imurl:
-					i += 1
-					break
 				pp = photos.get(imurl, None)
 				if pp:
 					obj.image_create(END, image = pp)

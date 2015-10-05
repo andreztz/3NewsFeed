@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name="NewsFeed",
-        version="3.6",
+        version="3.7",
         description="A reader and aggregator for RSS/RDF/Atom feeds in Python/Tk",
         author="Martin C. Doege",
         author_email="mdoege@compuserve.com",
