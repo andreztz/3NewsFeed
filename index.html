@@ -36,12 +36,12 @@
 
 <table>
  <tr>
-  <td><a href="newsfeed-arch.png"><img src="arch-mini.png" border="0" alt="NewsFeed on Linux"></a></td>
   <td><a href="newsfeed-mac.png"><img src="mac-mini.png" border="0" alt="NewsFeed on the Mac"></a></td>
+  <td><a href="newsfeed-arch.png"><img src="arch-mini.png" border="0" alt="NewsFeed on Linux"></a></td>
  </tr>
  <tr>
-  <td align="center">Linux (KDE with Breeze Dark theme)</td>
-  <td align="center">OS X</td>
+  <td align="center">OS X El Capitan (with default NewsFeed layout)</td>
+  <td align="center">Linux (KDE with Breeze Dark theme; widescreen layout)</td>
  </tr>
 </table>
 
@@ -50,8 +50,8 @@
 <div>
 <ul>
 <li><b>Latest version</b> (Python 3.3+; multiprocessing on Linux/FreeBSD, single-process on Windows and OS X):
-<div class="current"><b><a href="NewsFeed-3.6.tar.gz">NewsFeed v3.6</a>&nbsp;&nbsp;&nbsp;[99 KB] for Python 3.3 and later&nbsp;&nbsp;
-<small>(2015-10-03)</small></b> &mdash; <a href="https://github.com/mdoege/3NewsFeed">GitHub repo</a>
+<div class="current"><b><a href="NewsFeed-3.7.tar.gz">NewsFeed v3.7</a>&nbsp;&nbsp;&nbsp;[98 KB] for Python 3.3 and later&nbsp;&nbsp;
+<small>(2015-10-05)</small></b> &mdash; <a href="https://github.com/mdoege/3NewsFeed">GitHub repo</a>
 </div></li>
 <li>Final Python 2.x version (multiprocessing; works on Linux and probably OS X, but not on Windows):
 <div class="older"><b><a href="NewsFeed-2.16.tar.gz">NewsFeed v2.16</a>&nbsp;&nbsp;&nbsp;[106 KB] for Python 2.6 and 2.7&nbsp;<b><sup><a href="#backport">**</a></sup></b>&nbsp;
@@ -87,8 +87,8 @@ Older Python 2 version (single-process; Linux, OS X, and Windows):
  <li>Keyboard shortcuts for all <i>safe</i> functions.</li>
  <li>Live searches in the vein of smart playlists in <a href="http://www.apple.com/itunes/">iTunes</a>.</li>
  <li>OPML import and export of subscriptions.</li>
- <li>Simple HTML rendering (i.e. no annoying color schemes, text always of readable size, etc.).</li>
- <li>Adjustable font size as in <a href="http://www.apple.com/safari/">Safari</a>.</li>
+ <li>Simple HTML rendering (i.e. no annoying color schemes, text always of readable size, etc.); image loading is off by default but can be toggled quickly.</li>
+ <li>Adjustable font size</li>
  <li>Stable &mdash; no crashes or core dumps, ever.</li>
  <li>Browser-like back button.</li>
  <li>Can be run from a USB flash drive.</li>
@@ -106,7 +106,7 @@ Older Python 2 version (single-process; Linux, OS X, and Windows):
 <ul>
  <li>May be sluggish in GUI behavior when updating feeds. <span class="reason">&mdash;In practice, this is not such a biggie, as you can simply hit <b>Escape</b> (or alternatively, click the "X") to stop an update in progress if it inconveniences you.</span></li>
  <li>No folders in feed list. <span class="reason">&mdash;Arranging the feeds in the feed list in such a way that similar topics come after each is often enough to emulate the benefits of folders.</span></li>
- <li>Simple HTML rendering (i.e. no images, some tags are not supported). <span class="reason">&mdash;Most feeds outside of photoblogs or comic strip feeds do not rely on images or complex HTML markup too heavily.</span></li>
+ <li>Simple HTML rendering (i.e. some tags are not supported). <span class="reason">&mdash;Most feeds outside of photoblogs or comic strip feeds do not rely on images or complex HTML markup too heavily.</span></li>
  <li>Python as a byte-compiled language does require a fairly modern processor and enough RAM to run satisfactorily. In other words, if you are still running a Pentium-133, don't bother. <span class="reason">&mdash;On the other hand, if you set the caching time for items low enough so that NewsFeed doesn't have to deal with tens of thousands of articles, the program can be quite snappy.</span></li>
  <li>Tk widgets tend to look a little dated, depending on the version of Tk used, and don't offer niceties such as drag and drop or line-dependent coloring in lists. <span class="reason">&mdash;Tk is time-proven and what it lacks in eye candy factor, it makes good with reliability and responsiveness.</span></li>
 </ul>
@@ -119,6 +119,14 @@ Older Python 2 version (single-process; Linux, OS X, and Windows):
 <p>Python also cleverly integrates some the greatest features from even more powerful languages like <a href="http://www.lisp.org/">Common Lisp</a>, <a href="http://www.smalltalk.org/">Smalltalk</a>, or <a href="http://www.haskell.org/">Haskell</a>, making it easy to use concepts like object-orientation, functional constructs, or exceptions, all with a minimal, easy-to-learn syntax. This mix-and-match approach in Python is something I find very refreshing.</p>
 
 <h3><a name="c">Version History</a></h3>
+
+<h4>v3.7 (2015-10-05)</h4>
+
+<blockquote>
+
+<p>Images in feeds can now be displayed if <a href="https://python-pillow.github.io/">Pillow</a> (a fork of the Python Imaging Library) is installed. Image loading is off by default (because it slows things down), but can be toggled via the checkbox next the "Search News" button.</p>
+
+</blockquote>
 
 <h4>v3.6 (2015-10-03)</h4>
 
@@ -154,41 +162,7 @@ Older Python 2 version (single-process; Linux, OS X, and Windows):
 
 </blockquote>
 
-<h4>v3.1 (2013-12-19)</h4>
-
-<blockquote>
-
-<p>Emoji characters in story titles and descriptions are replaced with a &ldquo;&#9725;&rdquo; character because Tcl is unable to render them.</p>
-
-</blockquote>
-
-<h4>v3.0 (2013-01-16)</h4>
-
-<blockquote>
-
-<p>NewsFeed now runs on Python 3.3 exclusively; Python 2.x is no longer supported by the latest version. (NewsFeed 2.16 is still available for Python 2 users.)</p>
-
-<p>If you are upgrading from NewsFeed 2.x, it is recommended to back up your <tt>.newsfeed</tt> subscriptions file first. (Or at least run <tt>feed2opml.py</tt> to export your subscriptions list.)</p>
-
-</blockquote>
-
-<h4>v2.16 (2012-07-30)</h4>
-
-<blockquote>
-
-<p>Support for playing audio notifications via <a href="http://people.csail.mit.edu/hubert/pyaudio/">PyAudio</a> and command line audio players has been added. Previously, this feature was TkSnack-only.</p>
-
-</blockquote>
-
-<h4>v2.15 (2012-06-05)</h4>
-
-<blockquote>
-
-<p>Upgraded to Feedparser 5.1.2, converted README to Markdown, improve searches, especially a long-standing bug where "Next Unread" would jump to the middle of a search feed instead of the beginning.</p>
-
-</blockquote>
-
-<h5><a href="history.html">More&hellip;</a></h5>
+<h5><a href="history.html">Older versions&hellip;</a></h5>
 
 <h3>Requirements</h3>
 
@@ -200,6 +174,7 @@ Older Python 2 version (single-process; Linux, OS X, and Windows):
 </li>
 <li>Tk 8.0 or later </li>
 <li>Tkinter</li>
+<li><a href="https://python-pillow.github.io/">Pillow</a> if you would like to see images in feeds. (Use a command like "sudo pip3 install Pillow" to download and install it.)</li>
 <li>PyAudio, TkSnack, or a suitable command line audio player (only needed if you want audio notifications)</li>
 </ul>
 
