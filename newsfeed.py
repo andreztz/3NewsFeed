@@ -837,9 +837,10 @@ class MyHTMLParser(HTMLParser):
 			s.out += '~'
 		if t == 'img':
 			s.out += '[Image]'
-			for at in a:
-				if at[0] == 'src':
-					s.out += ' ' + at[1] + ' '
+			if show_images:
+				for at in a:
+					if at[0] == 'src':
+						s.out += ' ' + at[1] + ' '
 		if t == 'blockquote':
 			s.out += ' {/ {/ '
 		if t == 'li':
@@ -1538,9 +1539,6 @@ class TkApp:
 						#print("GOOD", imurl)
 						obj.image_create(END, image = photo)
 				obj.insert(END, "\n", "DESCR")
-				i += 1
-			elif x == "[Image]" and not show_images:
-				obj.insert(END, "[IMAGE]\n", "DESCR")
 				i += 1
 			else: obj.insert(END, x + " ", "DESCR")
 			i += 1
