@@ -1,5 +1,7 @@
-gm convert newsfeed-arch.png  -geometry x300 arch-mini.png  
+gm convert newsfeed-arch.png  -geometry x220 arch-mini.png  
 
-gm convert newsfeed-mac.png  -geometry x300 mac-mini.png  
+gm convert newsfeed-mac.png  -geometry x220 mac-mini.png  
+
+gm convert newsfeed-win10.png  -geometry x220 win-mini.png  
 
 
