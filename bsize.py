@@ -25,7 +25,8 @@ for f in newsfeeds:
 		for n in f.content:
 			size += (len(n.title) + len(n.descr) + len(n.link)
 				 + len(n.date) + len(n.fromfeed))
-		size += len(list(f.headlines.keys())) * (len(list(f.headlines.keys())[0]) + 8)
+		if len(f.headlines.keys()):
+			size += len(list(f.headlines.keys())) * (len(list(f.headlines.keys())[0]) + 8)
 		if f.lastresult != None:
 			size += len(f.lastresult)
 		try: size += len(f.webpage)
