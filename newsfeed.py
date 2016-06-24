@@ -2086,6 +2086,8 @@ class TkApp:
 					etag = cur.lastresult.get('etag', '')
 					lr = cur.lastresult.get('modified', '')
 				except: etag, lr = '', ''
+				if cur.failed:
+					etag, lr = '', ''
 				try:
 					if use_threads:
 						dlthreads.urlq.put_nowait((cur.url_is_webpage(), (cur.url, etag, lr)))
