@@ -19,7 +19,7 @@ import sys
 assert sys.version >= '3.3', "This program does not work with older versions of Python.\
  Please install Python 3.3 or later."
 
-import os, sys, time, string, re, webbrowser, pickle, signal, socket, urllib.request, urllib.error, urllib.parse, difflib
+import os, sys, subprocess, time, string, re, webbrowser, pickle, signal, socket, urllib.request, urllib.error, urllib.parse, difflib
 socket.setdefaulttimeout(20)
 from hashlib import md5
 from multiprocessing import Queue
@@ -36,7 +36,7 @@ except:
 photos = {}
 show_images = False
 
-# Python multiprocessing ic combination with urllib is broken on OS X
+# Python multiprocessing in combination with urllib is broken on OS X
 # and MP behaves differently on Windows, so it is only enabled on Linux and FreeBSD:
 if 'freebsd' in sys.platform or 'linux' in sys.platform:
 	use_threads = True
@@ -44,6 +44,20 @@ else:
 	use_threads = False
 if use_threads:
 	import dlthreads
+
+# The KDE Plasma 5.7 menu bar crashes from title/icon updates for unread item count,
+# so detect if plasmashell is running:
+plasmashell = False
+if 'freebsd' in sys.platform or 'linux' in sys.platform:
+	cmd = 'ps aux'
+	r = ''
+	try:
+		r = subprocess.check_output(cmd.split())
+	except:
+		pass
+	if b'plasmashell' in r:
+		plasmashell = True
+		print("Plasma detected")
 
 ################################################################################################
 
@@ -1246,9 +1260,11 @@ class TkApp:
 			iconname = "%u unread" % i
 		else: iconname = config['progname']
 		title += netchecker.text_status()
-		s.parent.title(title)
 		if s.refresh_feeds: iconname = "%u (%2u%%)" % (i, s.progress())
-		s.parent.iconname(iconname)
+
+		if not plasmashell:
+			s.parent.title(title)
+			s.parent.iconname(iconname)
 
 		# Play notification sound if there are new unread messages:
 		if not s.total_unread and i:
@@ -2209,7 +2225,7 @@ def gui_interface():
 
 	root = Tk()
 
-	root.title(config['progname'] + " - " + newsfeeds[0].name)
+	root.title(config['progname'])
 	root.geometry(config['geom_root'])
 
 	app = TkApp(root)
