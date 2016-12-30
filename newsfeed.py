@@ -57,7 +57,7 @@ if 'freebsd' in sys.platform or 'linux' in sys.platform:
 		pass
 	if b'plasmashell' in r:
 		plasmashell = True
-		print("Plasma detected")
+		#print("Plasma detected")
 
 ################################################################################################
 
