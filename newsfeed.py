@@ -1569,7 +1569,7 @@ class TkApp:
 			obj.tag_bind("ENC", "<ButtonRelease-2>", lambda x, link = eurl: open_url(link))
 			obj.tag_bind("ENC", "<Enter>", s._cursor_over_link)
 			obj.tag_bind("ENC", "<Leave>", s._cursor_not_over_link)
-			obj.insert(END, "\n\n\n  Enclosure (type %s, size %s):\n  " % (etype, elen), "DESCR")
+			obj.insert(END, "\n\n\n  Enclosure (type %s, size %.1f MB):\n  " % (etype, int(elen)/1024**2), "DESCR")
 			obj.insert(END, "%s\n" % eurl, "ENC")
 		obj.insert(END, "\n\n" + story.link + "\n\n", "URL")
 		try: obj.insert(END, time.strftime("%Y-%m-%d %H:%M",
