@@ -3,26 +3,11 @@
 <channel>
 <title>NewsFeed Releases</title>
 <link>http://mdoege.github.io/3NewsFeed/</link>
-<description>This feed is used for a welcome message and if you keep it, will inform you of new releases.</description>
+<description>This feed will inform you about NewsFeed releases.</description>
 <language>en-us</language>
 
 <item>
-<title>Welcome to NewsFeed!</title>
-<description>
-&lt;p&gt;If you are looking for feeds to subscribe to, some of the following sites may be helpful:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;http://www.technorati.com/pop/blogs&quot;&gt;Technorati: Popular Blogs&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;http://www.syndic8.com/&quot;&gt;Syndic8&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;http://blogsearch.google.com/&quot;&gt;Google Blog Search&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;http://radio.weblogs.com/&quot;&gt;Radio UserLand Top 100&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-<link>http://mdoege.github.io/3NewsFeed/</link>
-</item>
-
-<item>
-<title>Current version is v3.7</title>
+<title>Current NewsFeed version is v3.8</title>
 <description>
 &lt;p&gt;A new release of NewsFeed is available. Please consider visiting the 
 &lt;a href=&quot;http://mdoege.github.io/3NewsFeed/&quot;&gt;NewsFeed homepage&lt;/a&gt;
@@ -33,3 +18,4 @@
 
 </channel>
 </rss>
+
