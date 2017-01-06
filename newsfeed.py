@@ -5,14 +5,14 @@ NewsFeed
 
 A Python/Tk RSS/RDF/Atom news aggregator. See included README.html for documentation.
 
-Martin Doege, 2015-10-05
+Martin Doege, 2017-01-06
 
 """
 
 __author__    = "Martin C. Doege (mdoege@compuserve.com)"
-__copyright__ = "Copyright 2003-2015, Martin C. Doege"
+__copyright__ = "Copyright 2003-2017, Martin C. Doege"
 __license__   = "GPL"
-__version__   = "3.7"
+__version__   = "3.8"
 
 from  tkinter import *
 import sys
@@ -171,7 +171,7 @@ export_file  = config_file + '.export'
 newsfeeds = []
 
 initial = [
-  ("?Welcome",           "http://home.arcor.de/mdoege/newsfeed/welcome.rss",                       60, 999),
+  ("?Welcome",           "http://mdoege.github.io/3NewsFeed/welcome.rss",                          60, 999),
   ("Wired News",         "http://www.wired.com/rss/index.xml"),
   ("ScienceDaily",       "http://www.sciencedaily.com/newsfeed.xml",                               60, 10),
   ("Slashdot",           "http://slashdot.org/slashdot.rss"),
