@@ -1,0 +1,104 @@
+import sys
+import rssparser
+import rssfinder
+import timeoutsocket
+import webbrowser
+
+newsfeeds = []
+
+initial = [
+  ["Wired News", "http://www.wired.com/news_drop/netcenter/netcenter.rdf"],
+  ["NYT News",   "http://www.newsisfree.com/HPE/xml/feeds/64/164.xml"],
+  ["Slashdot",   "http://slashdot.org/slashdot.rdf"],
+  ["Freshmeat",  "http://freshmeat.net/backend/fm.rdf"],
+  ["Python News","http://www.python.org/channews.rdf"],
+  ["CNN News",   "http://www.newsisfree.com/HPE/xml/feeds/96/696.xml."],
+  ["BBC News",   "http://www.bbc.co.uk/syndication/feeds/news/ukfs_news/world/rss091.xml"]
+]
+
+class NewsWire:
+	def __init__(s, url="", site="", name=""):
+		if url != "":
+			s.url=url
+		elif site != "":
+			tmp=rssfinder.getFeeds(site)
+			print len(tmp), "feeds found."
+			if len(tmp)<1: raise IOError
+			s.url=tmp[0]
+			print "Using RSS feed at %s." % s.url
+		else:
+			raise IOError
+		s.name=name
+		s.result={}
+		s.status=-1
+
+	def get_news(s, refresh=0):
+		#Parse the data, returns a dictionary:
+		if s.result == {} or refresh: s.result = rssparser.parse(s.url)
+		return s.result
+ 
+	def print_news(s):
+		if s.status:
+			result=s.get_news(1)
+		else:
+			result=s.get_news()
+		s.status=0
+		s.links=[]
+		if not len(result['items']):
+			print "Currently no newsfeed. Please try again later."
+			s.status=1
+			return
+		if result['channel'].has_key('date'):
+			print "\n%80s" % result['channel']['date'].strip()
+		if s.name != "":
+			print s.name, "--",
+		if result['channel'].has_key('title'):
+			print result['channel']['title'].strip()
+		for i in range(40): print "=",
+		print
+		i=1
+		for item in result['items']:
+			#Each item is a dictionary mapping properties to values
+			link=item.get('link', "(none)")
+			s.links.append(link)
+			title=item.get('title', "(none)")
+			descr=item.get('description', "(none)")
+
+			print "[%2u] %s" % (i, title)
+			if descr != "(none)":
+				print descr
+			print "%80s" % link
+			i=i+1
+		while 1:
+			topic=input("\nPlease select your topic (\"0\" to go back to menu):  ")
+			if 0 < topic <= len(s.links):
+				try:
+					webbrowser.open(s.links[topic-1])
+				except webbrowser.Error:
+					print "Error: Opening browser failed."
+			else: break
+
+def add_feeds(obj):
+	for i in obj:
+		try:
+			newsfeeds.append(NewsWire(i[1], name=i[0]))
+		except (IOError, timeoutsocket.Timeout):
+			print "Error: Could not find a suitable newsfeed."
+
+add_feeds(initial)
+
+if len(newsfeeds):
+	while 1:
+		print "\nAvailable newsfeeds:\n"
+		for i in range(len(newsfeeds)):
+			print "[%2u] %s" % (i+1, newsfeeds[i].name)
+		feed=input("\nPlease select your feed (\"0\" to quit):  ")
+		if 0 < feed <= len(newsfeeds):
+			try:
+				newsfeeds[feed-1].print_news()
+			except timeoutsocket.Timeout:
+				print "Operation timed out. ",
+				print "Please choose a different feed..."
+		else:
+			break
+

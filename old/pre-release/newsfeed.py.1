@@ -1,0 +1,842 @@
+#!/usr/bin/env python
+
+from  Tkinter import *
+
+import sys
+assert sys.version >= '2', "This program has not been tested with older versions of Python. Please install Python 2.0 or greater."
+import os
+import time
+import string
+import re
+import webbrowser
+import cPickle
+
+import rssparser
+import rssfinder
+import timeoutsocket
+
+config = {}
+
+# Program default values that cannot be changed via the GUI:
+config['mode']                     = "gui"
+config['progname']                 = "NewsFeed"
+config['refresh_every']            = 15		# Refresh interval in minutes
+config['maxtime']                  = 30		# Maximum time (in days) to keep items
+
+# Program default values that get saved automatically if changed:
+config['geom_root']                = "900x600"  # Default
+config['geom_info']                = "675x380"  #         window
+config['geom_search']              = "250x170"  #                sizes
+config['search_is_case_sensitive'] = 0          # Make new searches case sensitive?
+config['search_match_whole_words'] = 0          # Match only entire words in searches?
+
+config_file = os.path.join(os.path.expanduser("~"), ".newsfeed")
+
+newsfeeds = []
+
+initial = [
+  ("Wired News", "http://www.wired.com/news_drop/netcenter/netcenter.rdf"),
+  ("NYT News",   "http://www.newsisfree.com/HPE/xml/feeds/64/164.xml", 15, 10),
+  ("Slashdot",   "http://slashdot.org/slashdot.rdf", 30, 30),
+  ("Freshmeat",  "http://freshmeat.net/backend/fm.rdf", 15, 1),
+  ("Python News","http://www.python.org/channews.rdf", 60, 30),
+  ("CNN News",   "http://www.newsisfree.com/HPE/xml/feeds/96/696.xml.", 15, 10),
+  ("BBC News",   "http://www.bbc.co.uk/syndication/feeds/news/ukfs_news/world/rss091.xml", 15, 10)
+]
+
+class ContentItem:
+	"A channel content class."
+	def __init__(s, title, descr, link, date, fromfeed = ""):
+		s.title    = title
+		s.descr    = descr
+		s.link     = link
+		s.date     = date
+		s.fromfeed = fromfeed
+		s.unread   = 1
+		s.link_visited = 0
+	def show(s, num):
+		"Print item info for text interface."
+		print "[%2u] %s" % (num, s.get_title())
+		if s.descr != "(none)":
+			print s.descr
+		print "%80s" % s.link
+	def get_title(s):
+		"Return title of item. Put in parentheses if already read."
+		if s.unread: return s.title
+		else: return "  (" + s.title + ")"
+
+class NewsWire:
+	"A channel class that stores its content in s.contents"
+	def __init__(s, url = "", name = "", homeurl = "", refresh = config['refresh_every'], expire = config['maxtime']):
+		if url == "": raise IOError
+		s.url        = url
+		s.name       = name
+		s.descr      = ""
+		s.homeurl    = homeurl
+		s.refresh    = refresh
+		s.expire     = expire
+		s.content    = []
+		s.headlines  = {}
+		s.u_time     = 0		# Time of last update
+		s.failed     = 0
+
+	def get_name(s):
+		"Return newsfeed name, optionally with number of unread items."
+		if s.failed or not s.content: return "  [" + s.name + "]"
+		num_unread = s.get_unread()
+		if num_unread:
+			return s.name + " (" + str(num_unread) + ")"
+		else:
+			return s.name
+
+	def get_unread(s):
+		"Return number of unread items in newsfeed."
+		i = 0
+		for item in s.content:
+			if item.unread: i = i + 1
+		return i
+
+	def get_news(s, refresh = 0):
+		"Get news items from the Web and decode to instance variables."
+		result = {}
+		newcontent = []
+		if s.content == [] or s.failed or refresh and not s.url == "":
+			# Parse the data, returns a dictionary:
+			try: result  = rssparser.parse(s.url)
+			except timeoutsocket.Timeout:
+				s.failed = 1
+				return 0
+			s.failed = 0
+			s.title   = result['channel'].get('title', "").strip()
+			s.date    = result['channel'].get('date', "").strip()
+			s.descr   = result['channel'].get('description', s.descr).strip()
+			for item in result['items']:
+				# Each item is a dictionary mapping properties to values
+				title = item.get('title', "(none)")
+				if title not in s.headlines.keys():
+					s.headlines[title] = approx_time()
+					descr = item.get('description', "No description available.")
+					link  = item.get('link', "(none)")
+					date  = item.get('date', "")
+					if not date: date = s.date
+					newcontent.append(ContentItem(title, descr, link, date, fromfeed = s.name))
+			s.content = newcontent + s.content
+			for i in s.headlines.keys():
+				if (s.headlines[i] - time.time()) / 86400 > s.expire:
+					for j in range(len(s.content) - 1, -1, -1):
+						if s.content[j].title == s.headlines[i]:
+							del s.content[j]
+							del s.headlines[i]
+		return len(newcontent)
+
+	def print_news(s):
+		"Print items to screen and open selected item's URI in browser."
+		s.get_news()
+		if s.content == []:
+			print "\nCurrently no newsfeed. Please try again later."
+			return
+		print "\n%80s" % s.date
+		if s.name != "": print s.name, "--",
+		print s.title
+		for i in range(40): print "=",
+		print
+		i = 1
+		for item in s.content:
+			item.show(i)
+			i = i + 1
+		while 1:
+			try:
+				topic = input("\nPlease select your topic (\"0\" to go back to menu): ")
+			except SyntaxError:
+				continue
+			if 0 < topic <= len(s.content):
+				s.open_news(s.content[topic-1])
+			else: break
+
+	def open_news(s, item):
+		"Open news item in browser."
+		try:
+			webbrowser.open(item.link)
+		except webbrowser.Error:
+			print "Error: Opening browser failed."
+		else:
+			item.unread = 0
+
+class SearchWire(NewsWire):
+	"A class for searches in newsfeeds."
+	def __init__(s, terms, method = "exact", case = 0, words = 0):
+		s.terms      = terms.strip()
+		s.method     = method
+		s.case       = case
+		s.words      = words
+		if not case: s.terms = string.lower(s.terms)
+		s.name       = "Search for '" + s.terms + "'"
+		s.content    = []
+		s.headlines  = {}
+		s.u_time     = approx_time()	# Time of last update
+		s.failed     = 0
+
+	def get_news(s, refresh=1):
+		"Search for 'terms' in other newsfeeds."
+		newcontent   = []
+		s.headlines  = {}
+		if s.words: s.terms = "\\b" + s.terms + "\\b"
+		if not s.case: find = re.compile(s.terms, re.IGNORECASE)
+		else: find = re.compile(s.terms)
+		if s.content == [] or s.failed or refresh:
+			for f in newsfeeds:
+				if not isinstance(f, SearchWire):
+					for t in f.content:
+						if find.search(t.title) or find.search(t.descr):
+							newcontent.append(t)
+							s.headlines[t.title] = time.time()
+		s.content = newcontent
+		return 0
+
+def add_feeds(obj):
+	"Accept a list of tuples and add them to the global newsfeed pool."
+	global newsfeeds, config
+	try:
+		newsfeeds, config = cPickle.load(open(config_file, 'r'))
+	except:
+		for i in obj:
+			try:
+				if len(i) > 2:
+					newsfeeds.append(NewsWire(i[1], name=i[0], refresh = i[2], expire = i[3]))
+				else:
+					newsfeeds.append(NewsWire(i[1], name=i[0]))
+			except (IOError, timeoutsocket.Timeout):
+				print "Error: Could not find a suitable newsfeed."
+
+def save():
+	"Save document cache and configuration options."
+	try:
+		cPickle.dump((newsfeeds, config), open(config_file, 'w'))
+	except Exception:
+		pass
+
+def quit():
+	"Exit Program."
+	save()
+	sys.exit(0)
+
+def approx_time():
+	"Return an approximate timestamp, so that feeds and stories stay in sync."
+	return 10. * int(time.time() / 10)
+
+def plural_s(i):
+	"Return an 's' if i > 1."
+	if i > 1: return 's'
+	return ""
+
+def text_interface():
+	"Present the user with a simple textual interface to the RSS feeds."
+	if len(newsfeeds):
+		while 1:
+			print "\nAvailable newsfeeds:\n"
+			for i in range(len(newsfeeds)):
+				print "[%2u] %s" % (i+1, newsfeeds[i].get_name())
+			try:
+				feed = input("\nPlease select your feed (\"0\" to quit): ")
+			except SyntaxError:
+				continue
+			if 0 < feed <= len(newsfeeds):
+				try:
+					newsfeeds[feed-1].print_news()
+				except timeoutsocket.Timeout:
+					print "Operation timed out. ",
+					print "Please choose a different feed..."
+			else: quit()
+
+class TkApp:
+	"GUI class for use with the Tk interface."
+	def __init__(s, parent):
+		s.sel_f  = 0
+		s.sel_t  = 0
+		s.parent = parent
+		s.refresh_feeds     = []		# Feeds to update
+		s.num_refresh_feeds = 0 		# Number of feeds to update
+		s.refresh_now       = 0
+
+		s.infowin   = ""
+		s.searchwin = ""
+
+		# Frames:
+		s.f1 = Frame(parent)
+		s.f1.pack(side = TOP, expand = 0, fill = X)
+		s.f2 = Frame(parent)
+		s.f2.pack(side = BOTTOM, expand = 1, fill = BOTH)
+		s.f3 = Frame(s.f1)
+		s.f3.pack(side = LEFT, expand = 1, fill = BOTH)
+		s.f4 = Frame(s.f1)
+		s.f4.pack(side = RIGHT, expand = 1, fill = BOTH)
+		s.f5 = Frame(s.f2)
+		s.f5.pack(side = LEFT, expand = 0, fill = Y)
+		s.f6 = Frame(s.f2)
+		s.f6.pack(side = RIGHT, expand = 1, fill = BOTH)
+		s.f7 = Frame(s.f6)
+		s.f7.pack(side = TOP, expand = 1, fill = BOTH)
+		s.f8 = Frame(s.f6)
+		s.f8.pack(side = BOTTOM, expand = 1, fill = BOTH)
+
+		# Buttons:
+		s.b_refresh = Button(s.f3, text = "Refresh Now", command = s.refresh)
+		s.b_refresh.pack(side = LEFT)
+		s.b_info = Button(s.f3, text = "Edit Channel", command = s.info)
+		s.b_info.pack(side = LEFT)
+		s.b_sub = Button(s.f3, text = "Subscribe", command = s.sub)
+		s.b_sub.pack(side = LEFT)
+		s.b_unsub = Button(s.f3, text = "Unsubscribe", command = s.unsub)
+		s.b_unsub.pack(side = LEFT)
+		s.b_search = Button(s.f3, text = "Search News", command = s.new_search)
+		s.b_search.pack(side = LEFT)
+
+		s.b_delall = Button(s.f4, text = "Delete All", command = s.delete_all_in_feed)
+		s.b_delall.pack(side = RIGHT)
+		s.b_del = Button(s.f4, text = "Delete", command = s.delete_one)
+		s.b_del.pack(side = RIGHT)
+		s.b_allread = Button(s.f4, text = "Mark All As Read", command = s.mark_all_as_read)
+		s.b_allread.pack(side = RIGHT)
+		s.b_next = Button(s.f4, text = "Next Unread", command = s.next)
+		s.b_next.pack(side = RIGHT)
+
+		# Listboxes and Text widget:
+		s.pbar = Canvas(s.f5, width = 120, height = 20)
+		s.pbar.pack(side = BOTTOM)
+		s.pbar.create_rectangle(0, 4, 100, 14, fill = "white")
+		s.pbarline = s.pbar.create_rectangle(0, 4, 0, 14, fill = "#009b2e")
+
+		s.f_ud = Frame(s.f5)
+		s.f_ud.pack(side = BOTTOM, expand = 0, fill = X)
+		s.b_up = Button(s.f_ud, text = "Move Up", command = s.up)
+		s.b_up.pack(side = LEFT)
+		s.b_dn = Button(s.f_ud, text = "Move Down", command = s.down)
+		s.b_dn.pack(side = RIGHT)
+
+		s.lb_scr = Scrollbar(s.f5)
+		s.lb_scr.pack(side = RIGHT, fill = Y)
+		s.lb = Listbox(s.f5, selectmode = SINGLE, yscrollcommand = s.lb_scr.set)
+		for i in newsfeeds:
+			s.lb.insert(END, i.get_name())
+		s.lb.config(background = "#96c8ff", selectforeground = "white", selectbackground = "#3d9aff")
+		s.lb.pack(side = TOP, expand = 1, fill = BOTH)
+		s.lb_scr.config(command = s.lb.yview)
+
+		s.r1b_scr = Scrollbar(s.f7)
+		s.r1b_scr.pack(side = RIGHT, fill = Y)
+		s.r11b = Listbox(s.f7, selectmode = SINGLE, width = 30, yscrollcommand = s.r1b_scr.set)
+		for i in newsfeeds[0].content:
+			s.r11b.insert(END, i.date)
+		s.r11b.config(background = "#ffefaf", selectforeground = "white", selectbackground = "#ffc054")
+		s.r11b.pack(side = RIGHT, expand = 0, fill = BOTH)
+
+		s.r1b = Listbox(s.f7, selectmode = SINGLE, yscrollcommand = s.r1b_scr.set)
+		for i in newsfeeds[0].content:
+			s.r1b.insert(END, i.get_title())
+		s.r1b.config(background = "#ffefaf", selectforeground = "white", selectbackground = "#ffc054")
+		s.r1b.pack(side = TOP, expand = 1, fill = BOTH)
+		s.r1b_scr.config(command = s.yview)
+
+		s.r2b = Text(s.f8, wrap = WORD)
+		s.r2b.config(state = DISABLED, background = "#fffbea", selectforeground = "white", selectbackground ="#233a8e")
+		s.r2b.pack(side = BOTTOM, expand = 1, fill = BOTH)
+
+		parent.after(100, s.change_feed)
+		parent.after(2500, s.beat)
+
+	def yview(s, *args):
+		"Update the message header and date listbox in unison."
+		apply(s.r11b.yview, args)
+		apply(s.r1b.yview, args)
+
+	def draw_bar(s, p):
+		"Draw a progress bar while updating the feeds."
+		if p > 99 or p < 0: p = 0
+		s.pbar.coords(s.pbarline, 1, 4, int(p), 14)
+
+	def _update_feed_list(s):
+		"Update the list of feeds."
+		s.lb.delete(0, END)
+		for i in newsfeeds:
+			s.lb.insert(END, i.get_name())
+
+	def window_title(s):
+		"Update the Root window title."
+		title = "%s - %s" % (newsfeeds[s.sel_f].name, config['progname'])
+		i = 0
+		j = 0
+		for f in newsfeeds:
+			if not isinstance(f, SearchWire):
+				num_unread = f.get_unread()
+				i = i + num_unread
+				if num_unread: j = j + 1
+		if i: title = "%s (%u unread item%s in %u channel%s)" % (title, i, plural_s(i), j, plural_s(j))
+		s.parent.title(title)
+
+	def change_feed(s, feed = 0, savescroll = 0):
+		"Switch to a different feed and update item list."
+		s.sel_f = int(feed)
+		s.window_title()
+		topfrac, botfrac = s.lb.yview()
+		topit, botit = map(lambda x: int(.5 + x * (len(newsfeeds) - 1)), s.lb.yview())
+		scroll = int(.5 + s.r1b.yview()[0] * (len(newsfeeds[s.sel_f].content) - 1))
+		s.r1b.delete(0, END)
+		s.r11b.delete(0, END)
+		newsfeeds[s.sel_f].get_news()
+		s._update_feed_list()
+		s.window_title()
+		for i in newsfeeds[s.sel_f].content:
+			title = i.get_title()
+			if isinstance(newsfeeds[s.sel_f], SearchWire):
+				title = "%s [%s]" % (title, i.fromfeed)
+			s.r1b.insert(END, title)
+			s.r11b.insert(END, i.date)
+		if savescroll: s.yview(scroll)
+		else: s.change_topic()
+		s.lb.select_clear(0, END)
+		s.lb.select_set(s.sel_f)
+		if s.sel_f < topit or s.sel_f > botit: s.lb.see(s.sel_f)
+		else: s.lb.yview(topit)
+
+	def show_hand_cursor(s, event = ""):
+		"Show a hand cursor (for links)."
+		s.r2b.config(cursor = "hand2")
+
+	def show_pointer_cursor(s, event = ""):
+		"Revert to normal cursor."
+		s.r2b.config(cursor = "")
+
+	def change_topic(s, topic = 0):
+		"Switch to a different topic."
+		if not len(newsfeeds[s.sel_f].content):
+			s.r2b.config(state = NORMAL)
+			s.r2b.delete(1.0, END)
+			s.r2b.config(state = DISABLED)
+			return
+
+		s.sel_t = int(topic)
+		newsfeeds[s.sel_f].content[s.sel_t].unread = 0
+		s.change_feed(feed = s.sel_f, savescroll = 1)
+		topfrac, botfrac = s.r1b.yview()
+		topit, botit = map(lambda x: int(.5 + x * (len(newsfeeds) - 1)), s.r1b.yview())
+
+		s.r2b.config(state = NORMAL)
+		s.r2b.delete(1.0, END)
+
+		s.r2b.tag_config("DATE", foreground = "#00059e", justify = RIGHT, font = ("Courier", 12))
+		s.r2b.tag_config("DLDATE", foreground = "#00059e", justify = RIGHT, font = ("Courier", 12))
+		if newsfeeds[s.sel_f].content[s.sel_t].link_visited:
+			s.r2b.tag_config("HEADLINE", foreground = "#9600b5", underline = 1, font = ("Times", 20))
+		else: s.r2b.tag_config("HEADLINE", foreground = "blue", underline = 1, font = ("Times", 20))
+		s.r2b.tag_bind("HEADLINE", "<Button-1>", s.open)
+		s.r2b.tag_bind("HEADLINE", "<Button-2>", s.open)
+		s.r2b.tag_bind("HEADLINE", "<Enter>", s.show_hand_cursor)
+		s.r2b.tag_bind("HEADLINE", "<Leave>", s.show_pointer_cursor)
+		s.r2b.bind("<Enter>", s.show_pointer_cursor)
+		s.r2b.tag_config("DESCR", spacing2 = 5, font = ("Times", 16))
+		s.r2b.tag_config("URL", foreground = "#ff2600", justify = RIGHT, font = ("Courier", 12))
+
+		story = newsfeeds[s.sel_f].content[s.sel_t]
+
+		s.r2b.insert(END, story.date + "\n\n", ("DATE"))
+		s.r2b.insert(END, story.title, ("HEADLINE"))
+		s.r2b.insert(END, "\n\n" + story.descr + "\n\n", ("DESCR"))
+		s.r2b.insert(END, story.link + "\n\n", ("URL"))
+		s.r2b.insert(END, time.strftime("%Y-%m-%d %H:%M", time.localtime(newsfeeds[s.sel_f].headlines[story.title])), ("DLDATE"))
+		s.r2b.config(state = DISABLED)
+		if s.sel_t < topit or s.sel_t > botit:
+			s.r1b.see(s.sel_t)
+			s.r11b.see(s.sel_t)
+		else: s.yview(topit)
+		s.r1b.select_clear(0, END)
+		s.r1b.select_set(s.sel_t)
+
+	def next(s):
+		"Jump to next unread item."
+		t = s._next_in_feed(feed = s.sel_f, topic = s.sel_t)
+		if t:
+			s.change_topic(topic = t - 1)
+			return
+		for f in range(s.sel_f, len(newsfeeds)):
+			t = s._next_in_feed(feed = f)
+			if t:
+				s.change_feed(feed = f)
+				s.change_topic(topic = t - 1)
+				return
+		for f in range(0, s.sel_f):
+			t = s._next_in_feed(feed = f)
+			if t:
+				s.change_feed(feed = f)
+				s.change_topic(topic = t - 1)
+				return
+
+	def _next_in_feed(s, feed = 0, topic = 0):
+		"Find next unread message in feed 'feed', starting from topic 'topic'."
+		for i in range(topic, len(newsfeeds[feed].content)):
+			if newsfeeds[feed].content[i].unread:
+				return i + 1
+		for i in range(0, topic):
+			if newsfeeds[feed].content[i].unread:
+				return i + 1
+		return 0
+
+	def mark_all_as_read(s):
+		"Mark all items in current channel as read."
+		for i in newsfeeds[s.sel_f].content:
+			i.unread = 0
+		s.change_feed(feed = s.sel_f)
+
+	def delete_one(s):
+		"Delete one entry (and remember not to download it again)."
+		t = newsfeeds[s.sel_f].content[s.sel_t]
+		if isinstance(newsfeeds[s.sel_f], SearchWire):
+			for f in newsfeeds:
+				if f is not newsfeeds[s.sel_f]:
+					f.content = filter(lambda x: x.title != t.title, f.content)
+					#if f.headlines.has_key(t.title): del f.headlines[t.title]
+		#if newsfeeds[s.sel_f].headlines.has_key(t.title): del newsfeeds[s.sel_f].headlines[t.title]
+		del newsfeeds[s.sel_f].content[s.sel_t]
+		if len(newsfeeds[s.sel_f].content):
+			if s.sel_t == len(newsfeeds[s.sel_f].content):
+				s.sel_t = len(newsfeeds[s.sel_f].content) - 1
+			s.window_title()
+			s.change_topic(topic = s.sel_t)
+		else: s.change_feed(feed = s.sel_f)
+
+	def delete_all_in_feed(s):
+		"Delete all items in current feed as well as copies in other feeds and then refresh view."
+		if isinstance(newsfeeds[s.sel_f], SearchWire):
+			for t in newsfeeds[s.sel_f].content:
+				for f in newsfeeds:
+					if f is not newsfeeds[s.sel_f]:
+						f.content = filter(lambda x: x.title != t.title, f.content)
+						if f.headlines.has_key(t.title): del f.headlines[t.title]
+		newsfeeds[s.sel_f].content   = []
+		newsfeeds[s.sel_f].headlines = {}
+		s.change_feed(feed = s.sel_f)
+
+	def open(s, event = ""):
+		"Open news item link in web browser."
+		if not len(newsfeeds[s.sel_f].content): return
+		newsfeeds[s.sel_f].content[s.sel_t].link_visited = 1
+		newsfeeds[s.sel_f].open_news(newsfeeds[s.sel_f].content[s.sel_t])
+		s.change_feed(feed = s.sel_f, savescroll = 1)
+
+	def refresh(s):
+		"Refresh all newsfeeds."
+		if s.refresh_now < 1:
+			s.refresh_now = 1
+
+	def discover(s):
+		"Try to discover RSS feed for given site."
+		rss = ""
+		try: rss = rssfinder.getFeeds(s.e2.get())
+		except IOError, timeoutsocket.Timeout: pass
+		else:
+			if len(rss):
+				newsfeeds[s.sel_f].url = rss[0]
+				s.e3.delete(0, END)
+				s.e3.insert(END, newsfeeds[s.sel_f].url)
+			else:
+				s.e3.delete(0, END)
+				s.e3.insert(END, "Unable to locate feed for site " + s.e2.get())
+		
+	def _is_window_open(s, w):
+		"Is the window 'w' already open? If so, raise it."
+		try: tmp = w.geometry()
+		except (Exception, TclError): return 0
+		else:
+			w.lift()
+			w.focus()
+			return 1
+
+	def info(s):
+		"Display editable info about current channel."
+		if isinstance(newsfeeds[s.sel_f], SearchWire): return
+		if s._is_window_open(s.infowin): return
+
+		s.infowin = Toplevel()
+		s.infosel = s.sel_f
+		s.infowin.title("Subscription Info")
+		s.infowin.geometry(config['geom_info'])
+
+		f1 = Frame(s.infowin, borderwidth = 10)
+		f1.pack(side = TOP)
+		f2 = Frame(f1)
+		f2.pack(side = LEFT)
+		l1 = Label(f2, text = "Name:")
+		l1.pack()
+		f3 = Frame(f1)
+		f3.pack(side = RIGHT)
+		s.e1 = Entry(f3, width = 65)
+		s.e1.insert(END, newsfeeds[s.sel_f].name)
+		s.e1.pack(side = LEFT)
+
+		f4 = Frame(s.infowin, borderwidth = 10)
+		f4.pack(side = TOP)
+		f5 = Frame(f4)
+		f5.pack(side = LEFT)
+		l2 = Label(f5, text = "Home:")
+		l2.pack()
+		f6 = Frame(f4)
+		f6.pack(side = RIGHT)
+		s.e2 = Entry(f6, width = 65)
+		s.e2.insert(END, newsfeeds[s.sel_f].homeurl)
+		s.e2.pack(side = LEFT)
+
+		f7 = Frame(s.infowin, borderwidth = 10)
+		f7.pack(side = TOP)
+		f8 = Frame(f7)
+		f8.pack(side = LEFT)
+		l3 = Label(f8, text = "  RSS:")
+		l3.pack()
+		f9 = Frame(f7)
+		f9.pack(side = RIGHT)
+		s.e3 = Entry(f9, width = 65)
+		s.e3.insert(END, newsfeeds[s.sel_f].url)
+		s.e3.pack(side = LEFT)
+
+		f14 = Frame(s.infowin)
+		f14.pack(side = TOP, padx = 90, pady = 10, fill = X)
+		f15 = Frame(f14)
+		f15.pack(side = LEFT)
+		f16 = Frame(f14)
+		f16.pack(side = RIGHT)
+		f17 = Frame(f15)
+		f17.pack(side = LEFT)
+		f18 = Frame(f15)
+		f18.pack(side = RIGHT)
+		f19 = Frame(f16)
+		f19.pack(side = LEFT)
+		f20 = Frame(f16)
+		f20.pack(side = RIGHT)
+		l4 = Label(f17, text = "Update every:")
+		l4.pack(side = RIGHT)
+		s.o1var = StringVar()
+		if newsfeeds[s.sel_f].refresh == 5: s.o1var.set("5 minutes")
+		elif newsfeeds[s.sel_f].refresh == 15: s.o1var.set("15 minutes")
+		elif newsfeeds[s.sel_f].refresh == 30: s.o1var.set("30 minutes")
+		else: s.o1var.set("60 minutes")
+		o1 = OptionMenu(f18, s.o1var, "5 minutes", "15 minutes", "30 minutes", "60 minutes")
+		o1.config(width = 11)
+		o1.pack(side = LEFT)
+		l5 = Label(f19, text = "Expire after:")
+		l5.pack(side = RIGHT)
+		s.o2var = StringVar()
+		if newsfeeds[s.sel_f].expire == 1: s.o2var.set("1 day")
+		elif newsfeeds[s.sel_f].expire == 10: s.o2var.set("10 days")
+		elif newsfeeds[s.sel_f].expire == 30: s.o2var.set("30 days")
+		else: s.o2var.set("Never")
+		o2 = OptionMenu(f20, s.o2var, "1 day", "10 days", "30 days" , "Never")
+		o2.config(width = 8)
+		o2.pack(side = LEFT)
+
+		f10 = Frame(s.infowin)
+		f10.pack(side = TOP, pady = 20)
+		f11 = Frame(f10)
+		f11.pack(side = LEFT)
+		f12 = Frame(f10, width = 120)
+		f12.pack(side = LEFT)
+		f13 = Frame(f10)
+		f13.pack(side = LEFT)
+		b1 = Button(f11, text = "Auto-Detect RSS Feed", command = s.discover)
+		b1.pack(side = LEFT)
+		b2 = Button(f13, text = "Save Information", command = s._update)
+		b2.pack(side = RIGHT)
+
+		# Add site description:
+		f14 = Frame(s.infowin)
+		f14.pack(side = TOP, padx = 50)
+		s.t_descr = Text(f14, wrap = WORD, width = 60, height = 8)
+		s.t_descr.insert(END, newsfeeds[s.sel_f].descr)
+		s.t_descr.config(state = DISABLED, background = "#fffbea", selectforeground = "white", selectbackground ="#233a8e")
+		s.t_descr.pack(side = BOTTOM, expand = 1, fill = BOTH)
+
+	def _update(s):
+		"Update the channel information."
+		if not s.e1.get().strip() or not s.e3.get().strip(): return
+		newsfeeds[s.infosel].name    = s.e1.get().strip()
+		newsfeeds[s.infosel].homeurl = s.e2.get().strip()
+		newsfeeds[s.infosel].url     = s.e3.get().strip()
+
+		refresh = s.o1var.get()
+		newsfeeds[s.infosel].refresh = int(string.split(refresh)[0])
+
+		expire  = s.o2var.get()
+		try: newsfeeds[s.infosel].expire  = int(string.split(expire)[0])
+		except ValueError: newsfeeds[s.infosel].expire = 999999
+		
+		config['geom_info'] = s.infowin.geometry()
+		s.infowin.destroy()
+		if newsfeeds[s.sel_f].content: s.change_feed(feed = s.sel_f, savescroll = 1)
+		else: s.change_feed(feed = s.sel_f)
+
+	def sub(s):
+		"Subscribe to new channel."
+		newsfeeds.append(NewsWire(name = "New Channel", url = "http://"))
+		s.change_feed(feed = len(newsfeeds) - 1)
+		s.info()
+
+	def unsub(s):
+		"Remove current channel."
+		if s.refresh_now: return
+		if len(newsfeeds) == 1: return
+		del newsfeeds[s.sel_f]
+		if s.sel_f == len(newsfeeds) and len(newsfeeds): s.sel_f = s.sel_f - 1
+		s.change_feed(feed = s.sel_f)
+
+	def new_search(s):
+		"Create a new search entry."
+		if s._is_window_open(s.searchwin): return
+		s.searchwin = Toplevel()
+		s.searchwin.title("Create New Search")
+		s.searchwin.geometry(config['geom_search'])
+
+		f1 = Frame(s.searchwin)
+		f1.pack(side = TOP)
+		f2 = Frame(f1)
+		f2.pack(side = LEFT)
+		f3 = Frame(f1)
+		f3.pack(side = RIGHT)
+		l_search = Label(f2, text = "Search for:")
+		l_search.pack(side = TOP)
+		s.e_search = Entry(f3)
+		s.e_search.pack(side = TOP, pady = 20)
+
+		f4 = Frame(s.searchwin)
+		f4.pack(side = TOP, fill = X, padx = 40)
+		s.search_is_case_sensitive = IntVar()
+		s.search_is_case_sensitive.set(config['search_is_case_sensitive'])
+		s.c_search_case = Checkbutton(f4, text = "Match Case", variable = s.search_is_case_sensitive)
+		s.c_search_case.pack(side = LEFT)
+
+		f5 = Frame(s.searchwin)
+		f5.pack(side = TOP, fill = X, padx = 40)
+		s.search_match_whole_words = IntVar()
+		s.search_match_whole_words.set(config['search_match_whole_words'])
+		s.c_search_words = Checkbutton(f5, text = "Match Whole Words", variable = s.search_match_whole_words)
+		s.c_search_words.pack(side = LEFT)
+
+		s.b_search = Button(s.searchwin, text = "Accept", command = s._new_search_finished)
+		s.b_search.pack(side = TOP, pady = 20)
+		s.e_search.bind("<Return>", s._new_search_finished)
+		s.e_search.focus()
+
+	def _new_search_finished(s, event = ""):
+		"Accept the user's search."
+		case  = int(s.search_is_case_sensitive.get())
+		words = int(s.search_match_whole_words.get())
+		newsfeeds.append(SearchWire(s.e_search.get().strip(), case = case, words = words))
+		config['search_is_case_sensitive'] = case
+		config['search_match_whole_words'] = words
+		s.sel_f = len(newsfeeds) - 1
+		s.change_feed(feed = s.sel_f)
+		config['geom_search'] = s.searchwin.geometry()
+		s.searchwin.destroy()
+
+	def up(s):
+		"Move a channel up in list."
+		if s.refresh_now: return
+		if s.sel_f:
+			newsfeeds[s.sel_f], newsfeeds[s.sel_f - 1] = newsfeeds[s.sel_f - 1], newsfeeds[s.sel_f]
+			s.change_feed(feed = s.sel_f - 1, savescroll = 1)
+
+	def down(s):
+		"Move a channel down in list."
+		if s.refresh_now: return
+		if s.sel_f < len(newsfeeds) - 1:
+			newsfeeds[s.sel_f], newsfeeds[s.sel_f + 1] = newsfeeds[s.sel_f + 1], newsfeeds[s.sel_f]
+			s.change_feed(feed = s.sel_f + 1, savescroll = 1)
+
+	def beat(s):
+		"Look if any updating of feeds is necessary."
+		if len(s.lb.curselection())  and int(s.lb.curselection()[0])  != s.sel_f:
+			s.change_feed(feed = s.lb.curselection()[0])
+		if len(s.r1b.curselection()) and int(s.r1b.curselection()[0]) != s.sel_t:
+			s.change_topic(topic = s.r1b.curselection()[0])
+
+		# First stage of global refresh. Add all feeds to array of feeds to be reloaded:
+		if s.refresh_now == 1:
+			if s.b_refresh.cget("state") == "normal":
+				s.b_refresh.config(state = DISABLED)
+				s.b_unsub.config(state = DISABLED)
+				s.b_up.config(state = DISABLED)
+				s.b_dn.config(state = DISABLED)
+				s.refresh_feeds.append(newsfeeds[s.sel_f])
+			newsfeeds[s.sel_f].u_time = approx_time()
+			for i in newsfeeds:
+				if i is not newsfeeds[s.sel_f] and not isinstance(i, SearchWire):
+					s.refresh_feeds.append(i)
+					i.u_time = newsfeeds[s.sel_f].u_time
+			for i in newsfeeds:
+				if isinstance(i, SearchWire): s.refresh_feeds.append(i)
+			s.num_refresh_feeds = s.num_refresh_feeds + len(newsfeeds)
+			s.refresh_now = 2
+
+		# Second stage, do the actual downloading:
+		if len(s.refresh_feeds) and s.num_refresh_feeds:
+			s.draw_bar(100 - 100 * (len(s.refresh_feeds) - 1) / s.num_refresh_feeds)
+			if s.refresh_feeds[0] is newsfeeds[s.sel_f]:
+				s.sel_t = s.sel_t + s.refresh_feeds.pop(0).get_news(refresh = 1)
+				if s.sel_t >= len(newsfeeds[s.sel_f].content):
+					s.change_topic(topic = len(newsfeeds[s.sel_f].content) - 1)
+			else: s.refresh_feeds.pop(0).get_news(refresh = 1)
+			s.change_feed(feed = s.sel_f, savescroll = 1)
+		else:
+			if s.b_refresh.cget("state") != "normal":
+				s.b_refresh.config(state = NORMAL)
+				s.b_unsub.config(state = NORMAL)
+				s.b_up.config(state = NORMAL)
+				s.b_dn.config(state = NORMAL)
+			s.refresh_now = 0
+			s.draw_bar(0)
+
+		# Look for feeds that should be updated:
+		some_feeds_need_updating = 0
+		new_time = approx_time()
+		for i in newsfeeds:
+			if not isinstance(i, SearchWire):
+				if (time.time() - i.u_time) / 60 > i.refresh:
+					some_feeds_need_updating = 1
+					i.u_time = new_time
+					s.refresh_feeds.append(i)
+					s.num_refresh_feeds = s.num_refresh_feeds + 1
+					s.draw_bar(100 - 100 * (len(s.refresh_feeds) - 1) / s.num_refresh_feeds)
+
+		# Also update the searches if one or more feeds need to be updated:
+		if some_feeds_need_updating:
+			for i in newsfeeds:
+				if isinstance(i, SearchWire):
+					s.refresh_feeds.append(i)
+					s.num_refresh_feeds = s.num_refresh_feeds + 1
+					s.draw_bar(100 - 100 * (len(s.refresh_feeds) - 1) / s.num_refresh_feeds)
+		config['geom_root'] = s.parent.geometry()
+
+		s.parent.after(50, s.beat)
+
+def gui_interface():
+	"Tk interface routine."
+	root = Tk()
+
+	root.title(config['progname'] + " -- " + newsfeeds[0].name)
+	root.geometry(config['geom_root'])
+
+	app = TkApp(root)
+
+	root.protocol("WM_DELETE_WINDOW", quit)
+
+	root.mainloop()
+
+def main():
+	"Main Program. Start either textual or graphical interface."
+	add_feeds(initial)
+	if config['mode'] == "text":
+		text_interface()
+	else:
+		gui_interface()
+
+if __name__ == '__main__':
+	try:
+		main()
+	finally:
+		save()

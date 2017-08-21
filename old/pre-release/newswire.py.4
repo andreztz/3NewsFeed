@@ -1,0 +1,204 @@
+from  Tkinter import *
+
+import sys
+import os
+import rssparser
+import rssfinder
+import timeoutsocket
+import webbrowser
+import pickle
+
+mode = "gui"
+
+config_file = os.path.join(os.path.expanduser("~"),".newsfeed")
+
+newsfeeds = []
+
+initial = [
+  ("Wired News", "http://www.wired.com/news_drop/netcenter/netcenter.rdf"),
+  ("NYT News",   "http://www.newsisfree.com/HPE/xml/feeds/64/164.xml"),
+  ("Slashdot",   "http://slashdot.org/slashdot.rdf"),
+  ("Freshmeat",  "http://freshmeat.net/backend/fm.rdf"),
+  ("Python News","http://www.python.org/channews.rdf"),
+  ("CNN News",   "http://www.newsisfree.com/HPE/xml/feeds/96/696.xml."),
+  ("BBC News",   "http://www.bbc.co.uk/syndication/feeds/news/ukfs_news/world/rss091.xml")
+]
+
+class ContentItem:
+	"A channel content class."
+	def __init__(s, title, descr, link, date):
+		s.title  = title
+		s.descr  = descr
+		s.link   = link
+		s.date   = date
+		s.unread = 1
+	def show(s, num):
+		"Print item info for text interface."
+		if s.unread:
+			print "[%2u] %s" % (num, s.title)
+		else:
+			print "[%2u] (%s)" % (num, s.title)
+		if s.descr != "(none)":
+			print s.descr
+		print "%80s" % s.link
+
+class NewsWire:
+	"A channel class that stores its content in s.contents"
+	def __init__(s, url="", site="", name=""):
+		if url != "": s.url = url
+		elif site != "":
+			tmp = rssfinder.getFeeds(site)
+			print len(tmp), "feeds found."
+			if len(tmp) < 1: raise IOError
+			s.url = tmp[0]
+			print "Using RSS feed at %s." % s.url
+		else: raise IOError
+		s.name    = name
+		s.result  = {}
+		s.content = []
+
+	def get_news(s, refresh=0):
+		"Get news items from the Web and decode to instance variables."
+		if s.content == [] or refresh:
+			#Parse the data, returns a dictionary:
+			s.result  = rssparser.parse(s.url)
+			s.title   = s.result['channel'].get('title', "").strip()
+			s.date    = s.result['channel'].get('date', "").strip()
+			s.content = []
+			for item in s.result['items']:
+				#Each item is a dictionary mapping properties to values
+				title = item.get('title', "(none)")
+				descr = item.get('description', "(none)")
+				link  = item.get('link', "(none)")
+				date  = item.get('date', "(none)")
+				s.content.append(ContentItem(title, descr, link, date))
+ 
+	def print_news(s):
+		"Print items to screen and open selected item's URI in browser."
+		s.get_news()
+		if s.content == []:
+			print "\nCurrently no newsfeed. Please try again later."
+			return
+		print "\n%80s" % s.date
+		if s.name != "": print s.name, "--",
+		print s.title
+		for i in range(40): print "=",
+		print
+		i = 1
+		for item in s.content:
+			item.show(i)
+			i = i + 1
+		while 1:
+			try:
+				topic = input("\nPlease select your topic (\"0\" to go back to menu): ")
+			except SyntaxError:
+				continue
+			if 0 < topic <= len(s.content):
+				try:
+					webbrowser.open(s.content[topic-1].link)
+				except webbrowser.Error:
+					print "Error: Opening browser failed."
+				else:
+					s.content[topic-1].unread = 0
+			else: break
+
+def add_feeds(obj):
+	"Accept a list of tuples and add them to the global newsfeed pool."
+	global newsfeeds
+	try:
+		newsfeeds = pickle.load(open(config_file, 'r'))
+	except:
+		for i in obj:
+			try:
+				newsfeeds.append(NewsWire(i[1], name=i[0]))
+			except (IOError, timeoutsocket.Timeout):
+				print "Error: Could not find a suitable newsfeed."
+
+def quit():
+	"Save defaults and exit Program."
+	try:
+		pickle.dump(newsfeeds, open(config_file, 'w'))
+	except Exception:
+		pass
+	sys.exit(0)
+
+def text_interface():
+	"Present the user with a textual interface to the RSS feeds."
+	if len(newsfeeds):
+		while 1:
+			print "\nAvailable newsfeeds:\n"
+			for i in range(len(newsfeeds)):
+				print "[%2u] %s" % (i+1, newsfeeds[i].name)
+			try:
+				feed = input("\nPlease select your feed (\"0\" to quit): ")
+			except SyntaxError:
+				continue
+			if 0 < feed <= len(newsfeeds):
+				try:
+					newsfeeds[feed-1].print_news()
+				except timeoutsocket.Timeout:
+					print "Operation timed out. ",
+					print "Please choose a different feed..."
+			else: quit()
+
+class TkApp:
+	"Graphics code for use with the Tk interface."
+	def __init__(s, parent):
+		s.sel_f = 0
+		s.sel_t = 0
+
+		s.f1 = Frame(parent)
+		s.f1.pack(side=LEFT, expand=1, fill=BOTH)
+		s.f2 = Frame(parent)
+		s.f2.pack(side=RIGHT, expand=1, fill=BOTH)
+		s.lb = Listbox(s.f1, selectmode=SINGLE)
+		for i in newsfeeds:
+			s.lb.insert(END, i.name)
+		s.lb.pack(side=TOP, expand=1, fill=BOTH)
+		s.r1b = Listbox(s.f2, selectmode=SINGLE)
+		for i in newsfeeds[0].content:
+			s.r1b.insert(END, i.title)
+		s.r1b.pack(side=TOP, expand=1, fill=BOTH)
+		s.lb.bind("<Double-Button-1>", s.change_feed)
+		s.r1b.bind("<Double-Button-1>", s.change_topic)
+		s.r2b = Text(s.f2, wrap=WORD)
+		s.r2b.config(state=DISABLED)
+		s.r2b.pack(side=BOTTOM, expand=1, fill=BOTH)
+
+	def change_feed(s, event):
+		"Switch to a different feed."
+		s.sel_f = int(s.lb.curselection()[0])
+		s.r1b.delete(0, END)
+		newsfeeds[s.sel_f].get_news()
+		for i in newsfeeds[s.sel_f].content:
+			s.r1b.insert(END, i.title)
+
+	def change_topic(s, event):
+		"Switch to a different topic."
+		s.sel_t = int(s.r1b.curselection()[0])
+		s.r2b.config(state=NORMAL)
+		s.r2b.delete(1.0, END)
+		txt = "%80s\n%s\n\n%s" % (newsfeeds[s.sel_f].content[s.sel_t].date, newsfeeds[s.sel_f].content[s.sel_t].title, newsfeeds[s.sel_f].content[s.sel_t].descr)
+		s.r2b.insert(END, txt)
+		s.r2b.config(state=DISABLED)
+
+def gui_interface():
+	"Tk interface routine."
+	root = Tk()
+
+	app = TkApp(root)
+
+	root.protocol("WM_DELETE_WINDOW", quit)
+
+	root.mainloop()
+
+def main():
+	"Main Program. Start either textual or graphical interface."
+	add_feeds(initial)
+	if mode == "text":
+		text_interface()
+	else:
+		gui_interface()
+
+if __name__ == '__main__': main()
+
