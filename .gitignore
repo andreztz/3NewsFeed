@@ -1,0 +1,6 @@
+MANIFEST
+TODO.txt
+__pycache__
+dist
+.DS_Store
+
