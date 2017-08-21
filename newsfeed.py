@@ -874,7 +874,7 @@ class MyHTMLParser(HTMLParser):
 		if t == 'blockquote':
 			s.out += ' {/ {/ '
 		if t == 'li':
-			s.out += ' {/ *'
+			s.out += ' {/ ● '
 	def handle_endtag(s, t):
 		if t == 'a':
 			s.out += ' ]} '
