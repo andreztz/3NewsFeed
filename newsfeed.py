@@ -904,6 +904,9 @@ def htmlrender(t):
 	"Transform HTML markup to printable text."
 	if '<' not in t:
 		t = "<p>%s</p>" % t
+	if '[urlwindow]' in t:
+		t = t.replace('[urlwindow]',  '<a href="')
+		t = t.replace('[/urlwindow]', '">link</a>')
 	parser = MyHTMLParser()
 	try:
 		parser.feed(t)
