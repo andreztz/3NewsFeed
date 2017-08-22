@@ -9,7 +9,7 @@ Required: Python 2.4 or later
 Recommended: iconv_codec <http://cjkpython.i18n.org/>
 """
 
-__version__ = "5.2.0"
+__version__ = "5.2.1"
 __license__ = """
 Copyright 2010-2015 Kurt McKee <contactme@kurtmckee.org>
 Copyright 2002-2008 Mark Pilgrim
@@ -145,7 +145,6 @@ import urllib.parse
 import warnings
 
 from html.entities import name2codepoint, codepoint2name, entitydefs
-import collections
 
 try:
     from io import BytesIO as _StringIO
@@ -3652,7 +3651,7 @@ def convert_to_utf8(http_headers, data):
     # try: HTTP encoding, declared XML encoding, encoding sniffed from BOM
     for proposed_encoding in (rfc3023_encoding, xml_encoding, bom_encoding,
                               lazy_chardet_encoding, 'utf-8', 'windows-1252', 'iso-8859-2'):
-        if isinstance(proposed_encoding, collections.Callable):
+        if callable(proposed_encoding):
             proposed_encoding = proposed_encoding()
         if not proposed_encoding:
             continue
