@@ -35,7 +35,7 @@ import sys
 assert sys.version >= '3.3', "This program does not work with older versions of Python.\
  Please install Python 3.3 or later."
 
-import os, sys, subprocess, time, string, re, webbrowser, pickle, signal, socket, urllib.request, urllib.error, urllib.parse, difflib
+import os, sys, subprocess, time, string, re, webbrowser, pickle, signal, socket, urllib.request, urllib.error, urllib.parse, difflib, tkinter.font
 socket.setdefaulttimeout(20)
 from hashlib import md5
 from multiprocessing import Queue
@@ -731,6 +731,8 @@ def load_feeds():
 		newsfeeds += [Marked_items()]
 	if 'fontscaling' not in config.keys():
 		config['fontscaling'] = 1.
+	if 'wfont' not in config.keys():
+		config['wfont'] = 10
 
 def version_file(filename, num_revs):
 	"Perform a VMS-like versioning of file, keeping at most num_revs old copies."
@@ -1086,6 +1088,8 @@ class TkApp:
 		s.parent.bind("]",           s.forward)
 		s.parent.bind("+",           s.larger_font)
 		s.parent.bind("-",           s.smaller_font)
+		s.parent.bind("Z",           s.larger_widget_font)
+		s.parent.bind("z",           s.smaller_widget_font)
 		s.parent.bind("x",           s.export_item)
 		s.parent.bind("w",           s.toggle_wide)
 		s.parent.bind("<Motion>",    s._show_cursor)
@@ -1154,6 +1158,23 @@ class TkApp:
 			s.smaller_font()
 			return
 		s.change_content(feed = s.sel_f, topic = s.sel_t)
+
+	def larger_widget_font(s, event = ""):
+		"Increase widget font size"
+		global config
+
+		if config['wfont'] < 1000: config['wfont'] += 1
+		# https://stackoverflow.com/questions/15462647/modify-the-default-font-in-python-tkinter
+		default_font = tkinter.font.nametofont("TkDefaultFont")
+		default_font.configure(size = config['wfont'])
+
+	def smaller_widget_font(s, event = ""):
+		"Derease widget font size"
+		global config
+
+		if config['wfont'] > 1: config['wfont'] -= 1
+		default_font = tkinter.font.nametofont("TkDefaultFont")
+		default_font.configure(size = config['wfont'])
 
 	def toggle_wide(s, event = ""):
 		"Toggle widescreen view."
@@ -2246,6 +2267,9 @@ def gui_interface():
 
 	root.title(config['progname'])
 	root.geometry(config['geom_root'])
+
+	default_font = tkinter.font.nametofont("TkDefaultFont")
+	default_font.configure(size = config['wfont'])
 
 	app = TkApp(root)
 	app.change_content()
