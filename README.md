@@ -5,7 +5,7 @@ which uses Mark Pilgrim's Universal Feed Parser.
 
 NewsFeed only depends on Tk, no other libraries are required.
 
-For more detailed instructions, see the [manual](http://mdoege.github.io/3NewsFeed/).
+For more detailed instructions, see the NewsFeed [home page](http://mdoege.github.io/3NewsFeed/) and [manual](http://mdoege.github.io/3NewsFeed/README.html).
 
 ![screenshot](https://github.com/mdoege/3NewsFeed/raw/master/newsfeed.png "NewsFeed screenshot")
 
