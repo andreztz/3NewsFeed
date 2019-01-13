@@ -61,20 +61,6 @@ else:
 if use_threads:
 	import dlthreads
 
-# The KDE Plasma 5.7 menu bar crashes from title/icon updates for unread item count,
-# so detect if plasmashell is running:
-plasmashell = False
-if 'freebsd' in sys.platform or 'linux' in sys.platform:
-	cmd = 'ps aux'
-	r = ''
-	try:
-		r = subprocess.check_output(cmd.split())
-	except:
-		pass
-	if b'plasmashell' in r:
-		plasmashell = True
-		#print("Plasma detected")
-
 ################################################################################################
 
 # NOTE:
@@ -1302,9 +1288,8 @@ class TkApp:
 		title += netchecker.text_status()
 		if s.refresh_feeds: iconname = "%u (%2u%%)" % (i, s.progress())
 
-		if not plasmashell:
-			s.parent.title(title)
-			s.parent.iconname(iconname)
+		s.parent.title(title)
+		s.parent.iconname(iconname)
 
 		# Play notification sound if there are new unread messages:
 		if not s.total_unread and i:
