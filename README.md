@@ -17,11 +17,11 @@ Installation:
 
 If you just want to try NewsFeed out, no installation is necessary, simply run `newsfeed` or `Start_NewsFeed.py`.
 
-### Keys
+### Keyboard shortcuts
 
 Space, m, the arrow keys, and Return are the most important keys for everyday usage.
 
-| Key | Explanation
+| Key | Function
 | --- | ---
 | Space | Jump to next unread item
 | Return | Open item in browser
