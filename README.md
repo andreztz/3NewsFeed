@@ -30,6 +30,7 @@ Space, m, the arrow keys, and Return are the most important keys for everyday us
 | Up/Down | Previous/next item in feed
 | Left/Right | Previous/next feed
 | &lt; , &gt; , [ , ] |  Jump to last/next item in history
+| c | Toggle night mode
 | C (shift-c) | Catch up, i.e. mark all items in all feeds as read
 | Backspace / d | Delete item
 | e | Edit feed info

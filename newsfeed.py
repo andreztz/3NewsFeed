@@ -970,6 +970,7 @@ class TkApp:
 		s.total_unread      = 0		# Total number of unread items
 		s.cursor_state      = ["normal", "visible"]	# Current mouse pointer state
 		s.widescreen        = config.get("widescreen", False)
+		s.color             = False
 
 		s.infowin   = ""
 		s.searchwin = ""
@@ -1051,6 +1052,7 @@ class TkApp:
 		s.parent.bind("i",           s.iconify)
 		s.parent.bind("m",           s.mark_all_as_read_keyb)
 		s.parent.bind("n",           s.mark_unmark)
+		s.parent.bind("c",           s.color_mode)
 		s.parent.bind("C",           s.catch_up)
 		s.parent.bind("<Return>",    s.open)
 		s.parent.bind("o",           s.toggle_offline)
@@ -1170,6 +1172,35 @@ class TkApp:
 		s.add_content_area()
 		s.change_content(feed = s.sel_f, topic = s.sel_t)
 		config["widescreen"] = s.widescreen
+
+	def color_mode(s, event = ""):
+		"Change window color setting"
+		s.color = not s.color
+		if s.color:
+			s.lb.config(foreground = "white", background = "#334356", selectforeground = "white",
+							selectbackground = "#113059")
+			s.r11b.config(foreground = "white", background = "#7e7657", selectforeground = "white",
+							selectbackground = "#113059")
+			s.r1b.config(foreground = "white", background = "#7e7657", selectforeground = "white",
+							selectbackground = "#113059")
+			s.r2b.config(foreground = "white", background = "#4a3729",
+				selectforeground = "black", selectbackground = tps_background)
+		else:
+			s.lb.config(foreground = "black", background = "#96c8ff", selectforeground = "white",
+							selectbackground = "#328bff")
+			s.r11b.config(foreground = "black", background = "#ffefaf", selectforeground = "white",
+							selectbackground = "#328bff")
+			s.r1b.config(foreground = "black", background = "#ffefaf", selectforeground = "white",
+							selectbackground = "#328bff")
+			s.r2b.config(foreground = tp_foreground, background = tp_background,
+				selectforeground = tps_foreground, selectbackground = tps_background)
+
+	def link_col(s, event = ""):
+		"Return link color"
+		if s.color:
+			return "#7d8aff"
+		else:
+			return "blue"
 
 	def toggle_offline(s, event = ""):
 		"Toggle offline mode manually."
@@ -1479,14 +1510,14 @@ class TkApp:
 		if not newsfeeds[s.sel_f].content: return
 
 		obj.config(state = NORMAL)
-		obj.tag_config("DATE", foreground = "#00059e", justify = RIGHT, font = ("Courier",
+		obj.tag_config("DATE",   foreground = s.link_col(), justify = RIGHT, font = ("Courier",
 			fontsize['Date']))
-		obj.tag_config("DLDATE", foreground = "#00059e", justify = RIGHT, font = ("Courier",
+		obj.tag_config("DLDATE", foreground = s.link_col(), justify = RIGHT, font = ("Courier",
 			fontsize['Date']))
 		if newsfeeds[s.sel_f].content[s.sel_t].link_visited:
 			obj.tag_config("HEADLINE", foreground = "#9600b5", underline = 1,
 						font = ("Times", int(config['fontscaling'] * fontsize['Headline'])))
-		else: obj.tag_config("HEADLINE", foreground = "blue", underline = 1,
+		else: obj.tag_config("HEADLINE", foreground = s.link_col(), underline = 1,
 						font = ("Times", int(config['fontscaling'] * fontsize['Headline'])))
 		obj.tag_bind("HEADLINE", "<ButtonRelease-1>", s.open)
 		obj.tag_bind("HEADLINE", "<ButtonRelease-2>", s.open)
@@ -1552,7 +1583,7 @@ class TkApp:
 
 				mytag = "LINK%u" % i
 
-				obj.tag_config(mytag, foreground = "blue",
+				obj.tag_config(mytag, foreground = s.link_col(),
 						underline = 1, spacing2 = 5,
 						font = ("Times", int(config['fontscaling'] * fontsize['Description'])))
 				obj.tag_bind(mytag, "<ButtonRelease-1>", lambda x, link = link: open_url(link))
@@ -1587,7 +1618,7 @@ class TkApp:
 			etype = story.enclosure[0].get('type',   'unknown')
 			elen  = story.enclosure[0].get('length', 'unknown')
 			eurl  = story.enclosure[0].get('url',    'unknown')
-			obj.tag_config("ENC", foreground = "blue",
+			obj.tag_config("ENC", foreground = s.link_col(),
 					underline = 1, spacing2 = 5,
 					font = ("Times", int(config['fontscaling'] * fontsize['Description'])))
 			obj.tag_bind("ENC", "<ButtonRelease-1>", lambda x, link = eurl: open_enclosure(link))
