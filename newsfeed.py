@@ -1183,7 +1183,7 @@ class TkApp:
 							selectbackground = "#113059")
 			s.r1b.config(foreground = "white", background = "#7e7657", selectforeground = "white",
 							selectbackground = "#113059")
-			s.r2b.config(foreground = "white", background = "#4a3729",
+			s.r2b.config(foreground = "white", background = "#303030",
 				selectforeground = "black", selectbackground = tps_background)
 		else:
 			s.lb.config(foreground = "black", background = "#96c8ff", selectforeground = "white",
