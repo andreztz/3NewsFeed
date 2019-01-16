@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # NewsFeed is an RSS/RDF/Atom reader and aggregator.
-# Copyright (C) 2003-2017  Martin C. Doege (mdoege@compuserve.com)
+# Copyright (C) 2003-2019  Martin C. Doege (mdoege@compuserve.com)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,14 +21,14 @@ NewsFeed
 
 A Python/Tk RSS/RDF/Atom news aggregator. See included README.html for documentation.
 
-Martin Doege, 2017-01-06
+Martin Doege, 2019-01-16
 
 """
 
 __author__    = "Martin C. Doege (mdoege@compuserve.com)"
-__copyright__ = "Copyright 2003-2017, Martin C. Doege"
+__copyright__ = "Copyright 2003-2019, Martin C. Doege"
 __license__   = "GNU General Public License Version 3"
-__version__   = "3.8"
+__version__   = "3.9"
 
 from  tkinter import *
 import sys
