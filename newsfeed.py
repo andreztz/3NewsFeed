@@ -114,6 +114,11 @@ old_revisions_to_keep = 3
 # Note: They are suffixed .1, .2, .3, etc. with lower numbers
 #       designating more recent versions.
 
+# maximum paragraph length in words (for posts without paragraph breaks):
+maxpara    = 40
+# maximum paragraph length in words (for posts with existing paragraph breaks):
+maxparamax = 200
+
 # Colors in text pane:
 tp_foreground = 'black'
 tp_background = '#fffbea'
@@ -1572,9 +1577,17 @@ class TkApp:
 
 		# Insert hyperlinks as clickable text:
 		i = 0
+		lastpara = 0
+		numpar = len([pp for pp in textbody if pp == "{/"])
+		if numpar < 5:
+			maxpara2 = maxpara
+		else:
+			maxpara2 = maxparamax
 		while i < len(textbody):
 			x = textbody[i]
-			if x == "{/": obj.insert(END, "\n", "DESCR")
+			if x == "{/":
+				obj.insert(END, "\n", "DESCR")
+				lastpara = i
 			elif ((x == "{[" and show_images and "[Image]" not in textbody[i + 3]) or
 				(x == "{[" and not show_images)):
 				link = textbody[i + 1]
@@ -1613,6 +1626,9 @@ class TkApp:
 				obj.insert(END, "\n", "DESCR")
 				i += 1
 			else: obj.insert(END, x + " ", "DESCR")
+			if i - lastpara >= maxpara2 and '.' in textbody[i] and len(textbody[i]) > 4:
+				lastpara = i
+				obj.insert(END, "\n\n", "DESCR")
 			i += 1
 		if story.has_enclosure():
 			etype = story.enclosure[0].get('type',   'unknown')
