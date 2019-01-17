@@ -1199,6 +1199,7 @@ class TkApp:
 							selectbackground = "#328bff")
 			s.r2b.config(foreground = tp_foreground, background = tp_background,
 				selectforeground = tps_foreground, selectbackground = tps_background)
+		s.change_content(feed = s.sel_f, topic = s.sel_t)
 
 	def link_col(s, event = ""):
 		"Return link color"
@@ -1453,6 +1454,10 @@ class TkApp:
 		"Insert the item-specific navigation toolbar."
 		global newsfeeds, config
 
+		if s.color:
+			ncolor = "white"
+		else:
+			ncolor = "black"
 		obj.insert(END, "",           "NAV")
 		obj.insert(END, " back  ",      "BNAV")
 		obj.insert(END, "~",             "NAV")
@@ -1460,7 +1465,7 @@ class TkApp:
 		try: marked = newsfeeds[s.sel_f].content[s.sel_t].marked
 		except: marked = False
 		if marked: obj.tag_config("MNAV", foreground = "red")
-		else: obj.tag_config("MNAV", foreground = "black")
+		else: obj.tag_config("MNAV", foreground = ncolor)
 		obj.tag_config("MNAV", font = ("Helvetica", fontsize['Navigation'], "bold"))
 		obj.tag_config("SNAV", font = ("Helvetica", fontsize['Navigation'], "bold"))
 		obj.tag_config("LNAV", font = ("Helvetica", fontsize['Navigation'], "bold"))
@@ -1471,10 +1476,12 @@ class TkApp:
 		obj.tag_bind("SNAV", "<ButtonRelease-1>", s.smaller_font)
 		obj.tag_bind("ENAV", "<ButtonRelease-1>", s.export_item)
 		if about_equal(config['fontscaling'], .6):  obj.tag_config("SNAV", foreground = "#aaaaaa")
-		else: obj.tag_config("SNAV", foreground = "black")
+		else: obj.tag_config("SNAV", foreground = ncolor)
 		if about_equal(config['fontscaling'], 2.4): obj.tag_config("LNAV", foreground = "#aaaaaa")
-		else: obj.tag_config("LNAV", foreground = "black")
+		else: obj.tag_config("LNAV", foreground = ncolor)
 		obj.tag_bind("LNAV", "<ButtonRelease-1>", s.larger_font)
+		obj.tag_config("ENAV", foreground = ncolor)
+		obj.tag_config("NAV", foreground = ncolor)
 		obj.insert(END, "~",             "NAV")
 		obj.insert(END, "    smaller  ", "SNAV")
 		obj.insert(END, "~",             "NAV")
@@ -1536,15 +1543,19 @@ class TkApp:
 		obj.tag_config("NAV", font = ("Helvetica", fontsize['Navigation'], "bold"))
 		obj.tag_config("NAV", foreground = "black")
 		
+		if s.color:
+			ncolor = "white"
+		else:
+			ncolor = "black"
 		obj.tag_config("BNAV", font = ("Helvetica", fontsize['Navigation'], "bold"))
 		if history.is_first(): obj.tag_config("BNAV", foreground = "#aaaaaa")
-		else: obj.tag_config("BNAV", foreground = "black")
+		else: obj.tag_config("BNAV", foreground = ncolor)
 		obj.tag_bind("BNAV", "<ButtonRelease-1>", s.back)
 		obj.tag_bind("BNAV", "<ButtonRelease-2>", s.back)
 		
 		obj.tag_config("FNAV", font = ("Helvetica", fontsize['Navigation'], "bold"))
 		if history.is_last(): obj.tag_config("FNAV", foreground = "#aaaaaa")
-		else: obj.tag_config("FNAV", foreground = "black")
+		else: obj.tag_config("FNAV", foreground = ncolor)
 		obj.tag_bind("FNAV", "<ButtonRelease-1>", s.forward)
 		obj.tag_bind("FNAV", "<ButtonRelease-2>", s.forward)
 
