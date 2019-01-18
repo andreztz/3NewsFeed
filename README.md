@@ -40,6 +40,7 @@ Space, m, the arrow keys, and Return are the most important keys for everyday us
 | n | Mark/unmark item as important. It will show up in the Important Items feed.
 | N (shift-n) | Go to the Important Items search feed
 | o | Toggle offline mode (suppress updates)
+| p | Toggle automatic paragraph breaks
 | q | Quit NewsFeed
 | r | Refresh current feed
 | R (shift-r) | Refresh all feeds

@@ -975,7 +975,8 @@ class TkApp:
 		s.total_unread      = 0		# Total number of unread items
 		s.cursor_state      = ["normal", "visible"]	# Current mouse pointer state
 		s.widescreen        = config.get("widescreen", False)
-		s.color             = False
+		s.color             = False	# night mode?
+		s.parabreaks        = True	# add paragraph breaks?
 
 		s.infowin   = ""
 		s.searchwin = ""
@@ -1085,6 +1086,7 @@ class TkApp:
 		s.parent.bind("z",           s.smaller_widget_font)
 		s.parent.bind("x",           s.export_item)
 		s.parent.bind("w",           s.toggle_wide)
+		s.parent.bind("p",           s.toggle_para)
 		s.parent.bind("<Motion>",    s._show_cursor)
 
 		s.parent.focus()
@@ -1199,6 +1201,11 @@ class TkApp:
 							selectbackground = "#328bff")
 			s.r2b.config(foreground = tp_foreground, background = tp_background,
 				selectforeground = tps_foreground, selectbackground = tps_background)
+		s.change_content(feed = s.sel_f, topic = s.sel_t)
+
+	def toggle_para(s, event = ""):
+		"Toggle automatic paragraph breaks"
+		s.parabreaks = not s.parabreaks
 		s.change_content(feed = s.sel_f, topic = s.sel_t)
 
 	def link_col(s, event = ""):
@@ -1637,7 +1644,7 @@ class TkApp:
 				obj.insert(END, "\n", "DESCR")
 				i += 1
 			else: obj.insert(END, x + " ", "DESCR")
-			if i - lastpara >= maxpara2 and '.' in textbody[i] and len(textbody[i]) > 4:
+			if s.parabreaks and i - lastpara >= maxpara2 and '.' in textbody[i] and len(textbody[i]) > 4:
 				lastpara = i
 				obj.insert(END, "\n\n", "DESCR")
 			i += 1
