@@ -21,14 +21,14 @@ NewsFeed
 
 A Python/Tk RSS/RDF/Atom news aggregator. See included README.html for documentation.
 
-Martin Doege, 2019-01-16
+Martin Doege, 2019-01-23
 
 """
 
 __author__    = "Martin C. Doege (mdoege@compuserve.com)"
 __copyright__ = "Copyright 2003-2019, Martin C. Doege"
 __license__   = "GNU General Public License Version 3"
-__version__   = "3.9"
+__version__   = "3.10"
 
 from  tkinter import *
 import sys
